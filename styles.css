@@ -1,0 +1,52 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f3f2ef;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: #0a66c2;
+  color: white;
+}
+
+.nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 15px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+input, textarea {
+  margin-bottom: 15px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+button, .btn {
+  padding: 10px;
+  background: #0a66c2;
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-secondary {
+  background: gray;
+}
