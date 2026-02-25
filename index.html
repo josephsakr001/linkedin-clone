@@ -1,14 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LinkedIn Clone</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
+  <nav class="nav">
+    <div class="logo">LinkedIn Clone</div>
+    <div class="nav-links">
+      <a href="./register.html">Register</a>
+      <a href="./search.html">Public Search</a>
+    </div>
+  </nav>
 
-  <h1>It works ✅</h1>
-  <p>My LinkedIn clone is live!</p>
+  <main class="container">
+    <h1>Welcome 👋</h1>
+    <p>This is a simple LinkedIn-like project using HTML/CSS/JS + Supabase + Vercel.</p>
 
-  <script src="app.js"></script>
+    <div class="actions">
+      <a class="btn" href="./register.html">Create Account</a>
+      <a class="btn btn-secondary" href="./search.html">Search Profiles</a>
+    </div>
+  </main>
+
+  <script src="./app.js"></script>
 </body>
 </html>
