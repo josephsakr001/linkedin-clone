@@ -1,4 +1,6 @@
 // 1) Connect to Supabase (fill these in)
+console.log("NEW VERSION LIVE");
+
 const SUPABASE_URL = "https://fknmufaymoefcvljnitu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_rETTErV0GMfPB-xM73nDWw_777TD36v";
 
@@ -33,7 +35,7 @@ if (registerForm) {
       const userId = signUpData.user.id;
 
       // 3) Insert CV/profile info into the "profiles" table
-      const { error: profileError } = await supabase
+      const { error: profileError } = await supabaseClient
         .from("profiles")
         .insert([
           {
@@ -43,7 +45,7 @@ if (registerForm) {
             skills,
             location,
             phone,
-            bio,
+            bio,    
             avatar_url: null,
             cv_url: null,
           },
