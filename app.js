@@ -147,3 +147,69 @@ if (searchInput && searchBtn && resultsDiv) {
 
   loadAllProfiles();
 }
+
+
+// --- Profile Details Page (profile.html) ---
+const profileContainer = document.getElementById("profile-container");
+
+if (profileContainer) {
+  const params = new URLSearchParams(window.location.search);
+  const profileId = params.get("id");
+
+  const renderProfile = (p) => {
+    const name = p?.name || "";
+    const headline = p?.headline || "";
+    const location = p?.location || "";
+    const phone = p?.phone || "";
+    const bio = p?.bio || "";
+    const skills = p?.skills || "";
+
+    const avatar = p?.avatar_url
+      ? `<img src="${p.avatar_url}" alt="Avatar" class="avatar">`
+      : `<div class="avatar placeholder">No Photo</div>`;
+
+    const cvLink = p?.cv_url
+      ? `<p><a class="btn" href="${p.cv_url}" target="_blank">Download CV</a></p>`
+      : `<p>No CV uploaded.</p>`;
+
+    profileContainer.innerHTML = `
+      <div class="profile-card">
+        ${avatar}
+        <h1>${name}</h1>
+        <p><strong>${headline}</strong></p>
+        <p>${location}</p>
+        <p>${phone}</p>
+        <hr/>
+        <h3>About</h3>
+        <p>${bio}</p>
+        <h3>Skills</h3>
+        <p>${skills}</p>
+        <h3>CV</h3>
+        ${cvLink}
+      </div>
+    `;
+  };
+
+  const loadProfile = async () => {
+    if (!profileId) {
+      profileContainer.innerHTML = "<p>No profile id in URL.</p>";
+      return;
+    }
+
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", profileId)
+      .single();
+
+    if (error) {
+      console.error(error);
+      profileContainer.innerHTML = `<p>Error loading profile: ${error.message}</p>`;
+      return;
+    }
+
+    renderProfile(data);
+  };
+
+  loadProfile();
+}
