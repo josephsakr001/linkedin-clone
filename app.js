@@ -2,7 +2,7 @@
 const SUPABASE_URL = "https://fknmufaymoefcvljnitu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_rETTErV0GMfPB-xM73nDWw_777TD36v";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Handle registration form submit (register.html)
 const registerForm = document.getElementById("register-form");
@@ -23,7 +23,7 @@ if (registerForm) {
 
     try {
       // 2) Create user in Supabase Auth
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
         email,
         password,
       });
