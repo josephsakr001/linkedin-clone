@@ -25,16 +25,27 @@ if (registerForm) {
     const avatarFile = document.getElementById("avatar")?.files?.[0] || null;
 
     try {
-      // 2) Create user in Supabase Auth
-      const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
-        email,
-        password,
-      });
+    const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
+  email,
+  password,
+});
 
-      if (signUpError) throw signUpError;
+if (signUpError) throw signUpError;
 
+// IMPORTANT: sign in to get a session (so RLS sees you as authenticated)
+const { data: signInData, error: signInError } =
+  await supabaseClient.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+if (signInError) throw signInError;
+
+const userId = signInData.user.id;
       const userId = signUpData.user.id;
+
       let avatarUrl = null;
+
 
 if (avatarFile) {
   const fileExt = avatarFile.name.split(".").pop();
