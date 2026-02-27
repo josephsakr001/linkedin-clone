@@ -22,6 +22,7 @@ if (registerForm) {
     const bio = document.getElementById("bio").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
+    const avatarFile = document.getElementById("avatar")?.files?.[0] || null;
 
     try {
       // 2) Create user in Supabase Auth
@@ -33,6 +34,26 @@ if (registerForm) {
       if (signUpError) throw signUpError;
 
       const userId = signUpData.user.id;
+      let avatarUrl = null;
+
+if (avatarFile) {
+  const fileExt = avatarFile.name.split(".").pop();
+  const fileName = `${userId}.${fileExt}`;
+
+  const { error: uploadError } = await supabaseClient
+    .storage
+    .from("avatars")
+    .upload(fileName, avatarFile, { upsert: true });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabaseClient
+    .storage
+    .from("avatars")
+    .getPublicUrl(fileName);
+
+  avatarUrl = data.publicUrl;
+}
 
       // 3) Insert CV/profile info into the "profiles" table
       const { error: profileError } = await supabaseClient
@@ -46,7 +67,7 @@ if (registerForm) {
             location,
             phone,
             bio,    
-            avatar_url: null,
+         avatar_url: avatarUrl,
             cv_url: null,
           },
         ]);
