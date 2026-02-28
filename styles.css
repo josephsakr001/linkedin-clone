@@ -1,7 +1,7 @@
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  background: #f3f2ef;
+background: linear-gradient(to right, #f4f7fa, #e8edf3);
 }
 
 .nav {
@@ -49,4 +49,42 @@ button, .btn {
 
 .btn-secondary {
   background: gray;
+}
+
+.avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #0a66c2;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  margin-bottom: 20px;
+}
+
+
+.profile-card {
+  max-width: 750px;
+  margin: 50px auto;
+  padding: 40px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.profile-card h1 {
+  margin-bottom: 5px;
+  font-size: 28px;
+}
+
+.profile-card p {
+  color: #555;
+  line-height: 1.6;
+}
+
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 30px;
 }
