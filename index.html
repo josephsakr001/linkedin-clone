@@ -7,24 +7,192 @@
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <nav class="nav">
-    <div class="logo">LinkedIn Clone</div>
+
+  <nav class="navbar">
+    <a class="brand" href="./index.html">LinkedIn Clone</a>
+
     <div class="nav-links">
+      <a href="./index.html">Home</a>
       <a href="./register.html">Register</a>
-      <a href="./search.html">Public Search</a>
+      <a href="./search.html">Search</a>
+      <a href="#about">About</a>
     </div>
   </nav>
 
-  <main class="container">
-    <h1>Welcome 👋</h1>
-    <p>This is a simple LinkedIn-like project using HTML/CSS/JS + Supabase + Vercel.</p>
+  <main class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
 
-    <div class="actions">
-      <a class="btn" href="./register.html">Create Account</a>
-      <a class="btn btn-secondary" href="./search.html">Search Profiles</a>
+    <div class="hero-content">
+      <p class="hero-top">Available in Lebanon 24/7</p>
+
+      <h1 class="hero-title">We Will Help You Get a Job</h1>
+
+      <p class="hero-subtitle">
+        Connect with professionals, discover talent, and grow your career.
+      </p>
+
+      <div class="hero-buttons">
+        <a href="./search.html" class="btn hero-btn">Search Profiles</a>
+        <a href="./register.html" class="btn btn-secondary hero-btn">Register</a>
+      </div>
     </div>
   </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <section class="featured">
+    <div class="featured-inner">
+      <h2>Recently Joined Professionals</h2>
+      <div id="featured-users" class="featured-grid"></div>
+    </div>
+  </section>
+
+  <section class="story">
+  <div class="story-inner">
+
+    <div class="story-image">
+      <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=900&q=80" alt="Team working together">
+    </div>
+
+    <div class="story-content">
+      <h2>Built on Trust. Designed for Growth.</h2>
+
+      <p>
+        We started this platform with one simple idea — connect real professionals 
+        with real opportunities. No noise. No fake profiles. Just talent and ambition.
+      </p>
+
+      <p>
+        Every profile you see represents someone ready to grow, collaborate, 
+        and build something meaningful. We believe trust is the foundation of every career.
+      </p>
+
+      <div class="story-points">
+        <div class="point">
+          <h4>✔ Verified Profiles</h4>
+          <p>Real people. Real skills. Authentic connections.</p>
+        </div>
+
+        <div class="point">
+          <h4>✔ Career Focused</h4>
+          <p>Designed to help professionals grow and succeed.</p>
+        </div>
+
+        <div class="point">
+          <h4>✔ Community First</h4>
+          <p>We believe opportunity grows through collaboration.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <h2>Trusted by Professionals</h2>
+    <p class="testimonials-sub">
+      A few words from people who use our platform to connect and grow.
+    </p>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-top">
+          <img class="testimonial-avatar" src="https://i.pravatar.cc/100?img=12" alt="User avatar">
+          <div>
+            <div class="testimonial-name">Maya H.</div>
+            <div class="testimonial-role">UI/UX Designer • Beirut</div>
+          </div>
+        </div>
+        <p class="testimonial-text">
+          “I found serious opportunities fast. The profiles feel real and the search is simple.”
+        </p>
+        <div class="testimonial-stars">★★★★★</div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-top">
+          <img class="testimonial-avatar" src="https://i.pravatar.cc/100?img=32" alt="User avatar">
+          <div>
+            <div class="testimonial-name">Karim A.</div>
+            <div class="testimonial-role">Backend Developer • Tripoli</div>
+          </div>
+        </div>
+        <p class="testimonial-text">
+          “Clean interface, fast, and focused. I like that it’s not full of spam like other platforms.”
+        </p>
+        <div class="testimonial-stars">★★★★★</div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-top">
+          <img class="testimonial-avatar" src="https://i.pravatar.cc/100?img=7" alt="User avatar">
+          <div>
+            <div class="testimonial-name">Rana S.</div>
+            <div class="testimonial-role">HR Specialist • Lebanon</div>
+          </div>
+        </div>
+        <p class="testimonial-text">
+          “Great for discovering talent. The featured professionals section is a really nice touch.”
+        </p>
+        <div class="testimonial-stars">★★★★☆</div>
+      </div>
+    </div>
+
+    <div class="testimonials-cta">
+      <h3>Ready to join?</h3>
+      <p>Create your profile and get discovered by recruiters and professionals.</p>
+      <a class="btn" href="./register.html">Create Profile</a>
+    </div>
+  </div>
+</section>
+
+
+
+<footer class="footer">
+  <div class="footer-inner">
+
+    <!-- Brand Column -->
+    <div class="footer-col">
+      <h3 class="footer-brand">LinkedIn Clone</h3>
+      <p>
+        Connecting professionals across Lebanon. 
+        Helping talent grow and opportunities meet ambition.
+      </p>
+
+      <div class="footer-socials">
+        <a href="https://facebook.com" target="_blank">Facebook</a>
+        <a href="https://instagram.com" target="_blank">Instagram</a>
+        <a href="https://tiktok.com" target="_blank">TikTok</a>
+        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <a href="./index.html">Home</a>
+      <a href="./register.html">Register</a>
+      <a href="./search.html">Search</a>
+      <a href="#about">About</a>
+    </div>
+
+    <!-- Contact -->
+    <div class="footer-col">
+      <h4>Contact Us</h4>
+      <p>Email: contact@yourplatform.com</p>
+      <p>Phone: +961 70 000 000</p>
+      <p>Beirut, Lebanon</p>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 LinkedIn Clone. All rights reserved.
+  </div>
+</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="./supabaseClient.js"></script>
   <script src="./app.js"></script>
+
 </body>
 </html>

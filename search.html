@@ -15,15 +15,82 @@
     </div>
   </nav>
 
-  <main class="container">
-    <h1>Search Profiles</h1>
+<main class="page">
+  <div class="page-inner">
 
-    <input type="text" id="search-input" placeholder="Search by name...">
-    <button id="search-btn">Search</button>
+    <div class="search-header">
+      <h1>Search Professionals</h1>
+      <p>Find talent by keyword, location, and role — fast.</p>
+    </div>
 
-    <div id="results"></div>
-  </main>
+    <div class="search-panel">
+      <div class="search-row">
+        <!-- 1) Keyword -->
+        <div class="field">
+          <label for="search-keyword">Keyword</label>
+          <input
+            id="search-keyword"
+            type="text"
+            placeholder="e.g. Ahmad, UI/UX, React, Accountant..."
+          />
+        </div>
+<div class="field">
+  <label for="search-location">Area (Lebanon)</label>
+  <input id="search-location" list="lb-areas" placeholder="Type or select area..." />
+  <datalist id="lb-areas">
+    <option value="Beirut"></option>
+    <option value="Mount Lebanon"></option>
+    <option value="North Lebanon"></option>
+    <option value="Akkar"></option>
+    <option value="Bekaa"></option>
+    <option value="Baalbek-Hermel"></option>
+    <option value="South Lebanon"></option>
+    <option value="Nabatieh"></option>
+  </datalist>
+</div>
+
+        <!-- 3) Role/Skills -->
+ <div class="field">
+  <label for="search-role">Job / Role</label>
+  <input id="search-role" list="job-roles" placeholder="Type or select role..." />
+  <datalist id="job-roles">
+    <option value="Software Developer"></option>
+    <option value="Frontend Developer"></option>
+    <option value="Backend Developer"></option>
+    <option value="Full Stack Developer"></option>
+    <option value="UI/UX Designer"></option>
+    <option value="Graphic Designer"></option>
+    <option value="Data Analyst"></option>
+    <option value="Accountant"></option>
+    <option value="Sales"></option>
+    <option value="Marketing"></option>
+    <option value="HR"></option>
+    <option value="Customer Support"></option>
+    <option value="Project Manager"></option>
+    <option value="Engineer"></option>
+    <option value="Teacher"></option>
+  </datalist>
+</div>
+        </div>
+      </div>
+
+      <div class="search-actions">
+        <button id="search-btn" class="btn">Search</button>
+        <button id="clear-btn" class="btn btn-secondary" type="button">Clear</button>
+      </div>
+
+      <div class="search-meta">
+        <span id="results-count">0 results</span>
+        <span id="loading" class="loading" style="display:none;">Loading…</span>
+      </div>
+    </div>
+
+    <div id="results" class="results-grid"></div>
+
+  </div>
+</main>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="./app.js"></script>
+<script src="./supabaseClient.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>
