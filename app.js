@@ -300,10 +300,34 @@ if (profileContainer) {
     const avatar = p?.avatar_url
       ? `<img src="${escapeHtml(p.avatar_url)}" alt="Avatar" class="avatar" loading="lazy" decoding="async" width="160" height="160">`
       : `<div class="avatar placeholder">No Photo</div>`;
+const cvLink = p?.cv_url
+  ? `
+    <div class="cv-card">
+      <div class="cv-left">
+        <div class="cv-icon">CV</div>
+        <div class="cv-meta">
+          <p class="cv-title">Resume</p>
+          <p class="cv-sub">Open or download the CV file</p>
+        </div>
+      </div>
 
-    const cvLink = p?.cv_url
-      ? `<p><a class="btn" href="${escapeHtml(p.cv_url)}" target="_blank">Download CV</a></p>`
-      : `<p>No CV uploaded.</p>`;
+      <div class="cv-actions">
+        <a class="btn btn-small" href="${escapeHtml(p.cv_url)}" target="_blank" rel="noopener">View</a>
+        <a class="btn btn-small btn-outline" href="${escapeHtml(p.cv_url)}" download>Download</a>
+      </div>
+    </div>
+  `
+  : `
+    <div class="cv-card">
+      <div class="cv-left">
+        <div class="cv-icon">CV</div>
+        <div class="cv-meta">
+          <p class="cv-title">No CV yet</p>
+          <p class="cv-sub">This user didn’t upload a resume.</p>
+        </div>
+      </div>
+    </div>
+  `;
 
     profileContainer.innerHTML = `
       <div class="profile-card">
