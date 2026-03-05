@@ -294,9 +294,13 @@ if (profileContainer) {
     const headline = escapeHtml(p?.headline || "");
     const location = escapeHtml(p?.location || "");
     const phone = escapeHtml(p?.phone || "");
+
     const bio = escapeHtml(p?.bio || "");
     const skills = escapeHtml(p?.skills || "");
-
+    const salary = (p?.salary_min || p?.salary_max)
+  ? `${p?.salary_min || "?"} - ${p?.salary_max || "?"} USD`
+  : "Not specified";
+     
     const avatar = p?.avatar_url
       ? `<img src="${escapeHtml(p.avatar_url)}" alt="Avatar" class="avatar" loading="lazy" decoding="async" width="160" height="160">`
       : `<div class="avatar placeholder">No Photo</div>`;
@@ -354,6 +358,8 @@ const cvLink = p?.cv_url
       </div>
     `;
   };
+
+  <p><strong>Salary:</strong> ${salary}</p>
 
   const loadProfile = async () => {
     if (!profileId) {
