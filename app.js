@@ -1,108 +1,98 @@
 /* =========================
-   Profile (profile.html)
+   Register (register.html)
 ========================= */
-const profileContainer = document.getElementById("profile-container");
+const registerForm = document.getElementById("register-form");
 
-if (profileContainer) {
-  const params = new URLSearchParams(window.location.search);
-  const profileId = params.get("id");
+if (registerForm) {
+  registerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    console.log("✅ Register submit fired");
 
-  const renderProfile = (p) => {
-    const name = escapeHtml(p?.name || "");
-    const headline = escapeHtml(p?.headline || "");
-    const location = escapeHtml(p?.location || "");
-    const phone = escapeHtml(p?.phone || "");
-    const bio = escapeHtml(p?.bio || "");
-    const skills = escapeHtml(p?.skills || "");
+    const supabaseClient = window.supabaseClient;
 
-    // ✅ Salary text
-    const salary = (p?.salary_min || p?.salary_max)
-      ? `${p?.salary_min || "?"} - ${p?.salary_max || "?"} USD`
-      : "Not specified";
+    const name = document.getElementById("name").value.trim();
+    const headline = document.getElementById("headline").value.trim();
+    const skills = document.getElementById("skills").value.trim();
+    const location = document.getElementById("location").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const bio = document.getElementById("bio").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-    // ✅ Avatar
-    const avatar = p?.avatar_url
-      ? `<img src="${escapeHtml(p.avatar_url)}" alt="Avatar" class="avatar" loading="lazy" decoding="async" width="160" height="160">`
-      : `<div class="avatar placeholder">No Photo</div>`;
+    // ✅ salary fields (NEW)
+    const salaryMinRaw = document.getElementById("salary-min")?.value || "";
+    const salaryMaxRaw = document.getElementById("salary-max")?.value || "";
+    const salaryMin = salaryMinRaw ? parseInt(salaryMinRaw, 10) : null;
+    const salaryMax = salaryMaxRaw ? parseInt(salaryMaxRaw, 10) : null;
 
-    // ✅ CV card (still using cv_url link)
-    const cvLink = p?.cv_url
-      ? `
-        <div class="cv-card">
-          <div class="cv-left">
-            <div class="cv-icon">CV</div>
-            <div class="cv-meta">
-              <p class="cv-title">Resume</p>
-              <p class="cv-sub">Open or download the CV file</p>
-            </div>
-          </div>
+    // avatar
+    let avatarFile = document.getElementById("avatar")?.files?.[0] || null;
 
-          <div class="cv-actions">
-            <a class="btn btn-small" href="${escapeHtml(p.cv_url)}" target="_blank" rel="noopener">View</a>
-            <a class="btn btn-small btn-outline" href="${escapeHtml(p.cv_url)}" download>Download</a>
-          </div>
-        </div>
-      `
-      : `
-        <div class="cv-card">
-          <div class="cv-left">
-            <div class="cv-icon">CV</div>
-            <div class="cv-meta">
-              <p class="cv-title">No CV yet</p>
-              <p class="cv-sub">This user didn’t upload a resume.</p>
-            </div>
-          </div>
-        </div>
-      `;
+    try {
+      // optional compress
+      if (avatarFile) avatarFile = await compressImage(avatarFile);
 
-    // ✅ Render HTML (salary is inside template now)
-    profileContainer.innerHTML = `
-      <div class="profile-card">
-        <div class="profile-header">
-          ${avatar}
-          <div class="profile-info">
-            <h1>${name}</h1>
-            <p><strong>${headline}</strong></p>
-            <p>${location}</p>
-            <p>${phone}</p>
-            <p><strong>Salary:</strong> ${salary}</p>
-          </div>
-        </div>
+      // 1) Sign up
+      const { data: signUpData, error: signUpError } =
+        await supabaseClient.auth.signUp({ email, password });
+      if (signUpError) throw signUpError;
 
-        <hr/>
+      // 2) Make sure we have a session/user
+      let userId = signUpData?.user?.id;
 
-        <h3>About</h3>
-        <p>${bio}</p>
+      if (!userId) {
+        const { data: signInData, error: signInError } =
+          await supabaseClient.auth.signInWithPassword({ email, password });
+        if (signInError) throw signInError;
+        userId = signInData.user.id;
+      }
 
-        <h3>Skills</h3>
-        <p>${skills}</p>
+      // 3) Upload avatar (optional)
+      let avatarUrl = null;
 
-        <h3>CV</h3>
-        ${cvLink}
-      </div>
-    `;
-  };
+      if (avatarFile) {
+        const fileName = `public/${userId}.jpg`;
 
-  const loadProfile = async () => {
-    if (!profileId) {
-      profileContainer.innerHTML = "<p>No profile id in URL.</p>";
-      return;
+        const { error: uploadError } = await supabaseClient
+          .storage
+          .from("avatars")
+          .upload(fileName, avatarFile, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabaseClient.storage
+          .from("avatars")
+          .getPublicUrl(fileName);
+
+        avatarUrl = data.publicUrl;
+      }
+
+      // 4) Insert profile (WITH salary)
+      const { error: profileError } = await supabaseClient
+        .from("profiles")
+        .insert([{
+          user_id: userId,
+          name,
+          headline,
+          skills,
+          location,
+          phone,
+          bio,
+          salary_min: Number.isFinite(salaryMin) ? salaryMin : null,
+          salary_max: Number.isFinite(salaryMax) ? salaryMax : null,
+          avatar_url: avatarUrl,
+          cv_url: null,
+        }]);
+
+      if (profileError) throw profileError;
+
+      alert("Registration successful ✅");
+      registerForm.reset();
+      window.location.href = "./search.html";
+
+    } catch (err) {
+      console.error("❌ Registration error:", err);
+      alert("Error: " + (err?.message || "Something went wrong"));
     }
-
-    const { data, error } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", profileId)
-      .single();
-
-    if (error) {
-      console.error(error);
-      profileContainer.innerHTML = `<p>Error loading profile: ${escapeHtml(error.message)}</p>`;
-      return;
-    }
-
-    renderProfile(data);
-  };
-
-  loadProfile();
+  });
 }
