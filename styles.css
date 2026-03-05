@@ -989,3 +989,158 @@ html {
 .btn-outline:hover{
   background: rgba(10,102,194,0.08);
 }
+
+/* SEARCH WRAPPER */
+
+.search-wrapper{
+  padding: 60px 20px;
+  display:flex;
+  justify-content:center;
+}
+
+.search-card{
+  width:100%;
+  max-width:900px;
+  background:white;
+  padding:30px;
+  border-radius:18px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.08);
+}
+
+/* TITLE */
+
+.search-title{
+  margin-bottom:20px;
+  font-size:24px;
+  font-weight:800;
+}
+
+/* MAIN SEARCH */
+
+.search-main{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.search-main input{
+  flex:1;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:15px;
+}
+
+.search-main input:focus{
+  outline:none;
+  border-color:#0a66c2;
+}
+
+/* FILTERS */
+
+.search-filters{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.search-filters input{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+
+/* RESULTS */
+
+.results-header{
+  max-width:900px;
+  margin:20px auto;
+  display:flex;
+  justify-content:space-between;
+  font-weight:600;
+}
+
+.results-grid{
+  max-width:900px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;
+}
+
+/* ===== COOL SEARCH INPUTS ===== */
+.search-row.cool{
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 14px;
+}
+
+.cool-field label{
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(0,0,0,0.65);
+  margin-bottom: 8px;
+}
+
+.input-wrap{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  transition: 0.2s ease;
+}
+
+.input-wrap:focus-within{
+  border-color: rgba(10,102,194,0.55);
+  box-shadow: 0 0 0 4px rgba(10,102,194,0.12), 0 14px 30px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.input-wrap .icon{
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(10,102,194,0.10);
+  color: #0a66c2;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.input-wrap input{
+  border: none !important;
+  outline: none !important;
+  width: 100%;
+  font-size: 14px;
+  background: transparent;
+  padding: 0 !important;
+}
+
+.input-wrap input::placeholder{
+  color: rgba(0,0,0,0.40);
+}
+
+/* Mobile */
+@media (max-width: 850px){
+  .search-row.cool{
+    grid-template-columns: 1fr;
+  }
+}
+
+.salary-range{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.salary-range input{
+  width:120px;
+}

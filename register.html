@@ -24,14 +24,40 @@
   <input type="text" id="headline" placeholder="Headline (e.g., Web Developer)" required>
   <input type="text" id="skills" placeholder="Skills (comma separated: JS, HTML, CSS)" required>
   <input type="text" id="location" placeholder="Location (e.g., Beirut)" required>
-  <input type="tel" id="phone" placeholder="Phone Number" required>
+  <div class="field">
+  <label for="phone"></label>
+  <small class="hint">Use country code (example: +961 Lebanon)</small>
+  <input
+    type="tel"
+    id="phone"
+    placeholder="Phone Numbe :  +961 03 123 456"
+    required
+  >
+  
+</div>
 
   <input type="email" id="email" placeholder="Email" required>
   <input type="password" id="password" placeholder="Password" required>
+
+    <div class="field">
+  <label>Expected Salary (USD)</label>
+
+  <div class="salary-range">
+    <input type="number" id="salary-min" placeholder="From" />
+    <span>to</span>
+    <input type="number" id="salary-max" placeholder="To" />
+  </div>
+</div>
+
   <textarea id="bio" placeholder="Short Bio"></textarea>
   
+
+
+
  <input type="file" id="avatar" accept="image/*">
   <button type="submit">Register</button>
+
+ 
 </form>
 
   </main>
