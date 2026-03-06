@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
@@ -18,52 +19,52 @@
   <main class="container">
     <h1>Create Account</h1>
 
-   <form id="register-form">
-  <input type="text" id="name" placeholder="Full Name" required>
+    <form id="register-form">
+      <input type="text" id="name" placeholder="Full Name" required>
 
-  <input type="text" id="headline" placeholder="Headline (e.g., Web Developer)" required>
-  <input type="text" id="skills" placeholder="Skills (comma separated: JS, HTML, CSS)" required>
-  <input type="text" id="location" placeholder="Location (e.g., Beirut)" required>
-  <div class="field">
-  <label for="phone"></label>
-  <small class="hint">Use country code (example: +961 Lebanon)</small>
-  <input
-    type="tel"
-    id="phone"
-    placeholder="Phone Numbe :  +961 03 123 456"
-    required
-  >
-  
-</div>
+      <input type="text" id="headline" placeholder="Headline (e.g., Web Developer)" required>
+      <input type="text" id="skills" placeholder="Skills (comma separated: JS, HTML, CSS)" required>
+      <input type="text" id="location" placeholder="Location (e.g., Beirut)" required>
 
-  <input type="email" id="email" placeholder="Email" required>
-  <input type="password" id="password" placeholder="Password" required>
+      <div class="field">
+        <label for="phone">Phone Number</label>
+        <small class="hint">Use country code (example: +961 Lebanon)</small>
+        <input
+          type="tel"
+          id="phone"
+          placeholder="+961 03 123 456"
+          required
+        >
+      </div>
 
-    <div class="field">
-  <label>Expected Salary (USD)</label>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
 
-  <div class="salary-range">
-    <input type="number" id="salary-min" placeholder="From" />
-    <span>to</span>
-    <input type="number" id="salary-max" placeholder="To" />
-  </div>
-</div>
+      <div class="field">
+        <label>Expected Salary (USD)</label>
+        <div class="salary-range">
+          <input type="number" id="salary-min" placeholder="From" min="0" />
+          <span>to</span>
+          <input type="number" id="salary-max" placeholder="To" min="0" />
+        </div>
+      </div>
 
-  <textarea id="bio" placeholder="Short Bio"></textarea>
-  
+      <textarea id="bio" placeholder="Short Bio"></textarea>
 
+      <!-- ✅ CV link (so CV can open) -->
+      <input type="url" id="cv_url" placeholder="CV Link (PDF / Google Drive link)">
 
+      <input type="file" id="avatar" accept="image/*">
 
- <input type="file" id="avatar" accept="image/*">
-  <button type="submit">Register</button>
-
- 
-</form>
+      <button type="submit">Register</button>
+    </form>
 
   </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="./supabaseClient.js"></script>
-<script src="./app.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <!-- ✅ FIXED NAME -->
+  <script src="./supabaseClient.js"></script>
+  <script src="./app.js"></script>
 
 </body>
 </html>
