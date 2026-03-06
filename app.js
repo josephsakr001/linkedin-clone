@@ -29,9 +29,7 @@ if (registerForm) {
     let avatarFile = document.getElementById("avatar")?.files?.[0] || null;
 
     try {
-      // optional compress
-      if (avatarFile) avatarFile = await compressImage(avatarFile);
-
+     
       // 1) Sign up
       const { data: signUpData, error: signUpError } =
         await supabaseClient.auth.signUp({ email, password });
