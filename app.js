@@ -19,7 +19,7 @@ if (registerForm) {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-  const cv_url = document.getElementById("cv_url").value.trim() || null;
+  
 
     // ✅ salary fields (NEW)
     const salaryMinRaw = document.getElementById("salary-min")?.value || "";
@@ -81,7 +81,7 @@ if (registerForm) {
           salary_min: Number.isFinite(salaryMin) ? salaryMin : null,
           salary_max: Number.isFinite(salaryMax) ? salaryMax : null,
           avatar_url: avatarUrl,
-        cv_url,
+        
         }]);
 
       if (profileError) throw profileError;
