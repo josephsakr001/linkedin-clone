@@ -1,96 +1,143 @@
+console.log("APP JS RUNNING");
+
+/* =========================
+   Supabase Client
+========================= */
+const supabaseClient = window.supabaseClient;
+
+/* =========================
+   Register (register.html)
+========================= */
+const registerForm = document.getElementById("register-form");
+
+if (registerForm) {
+  registerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const headline = document.getElementById("headline").value.trim();
+    const skills = document.getElementById("skills").value.trim();
+    const location = document.getElementById("location").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const bio = document.getElementById("bio").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const salaryMin = parseInt(document.getElementById("salary-min")?.value || 0, 10);
+    const salaryMax = parseInt(document.getElementById("salary-max")?.value || 0, 10);
+
+    let avatarFile = document.getElementById("avatar")?.files?.[0] || null;
+
+    try {
+      const { data: signUpData, error: signUpError } =
+        await supabaseClient.auth.signUp({ email, password });
+
+      if (signUpError) throw signUpError;
+
+      let userId = signUpData?.user?.id;
+
+      if (!userId) {
+        const { data: signInData, error: signInError } =
+          await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (signInError) throw signInError;
+        userId = signInData.user.id;
+      }
+
+      let avatarUrl = null;
+
+      if (avatarFile) {
+        const fileName = `public/${userId}.jpg`;
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from("avatars")
+          .upload(fileName, avatarFile, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabaseClient.storage
+          .from("avatars")
+          .getPublicUrl(fileName);
+
+        avatarUrl = data.publicUrl;
+      }
+
+      const { error: profileError } = await supabaseClient
+        .from("profiles")
+        .insert([{
+          user_id: userId,
+          name,
+          headline,
+          skills,
+          location,
+          phone,
+          bio,
+          salary_min: salaryMin || null,
+          salary_max: salaryMax || null,
+          avatar_url: avatarUrl
+        }]);
+
+      if (profileError) throw profileError;
+
+      alert("Registration successful ✅");
+      registerForm.reset();
+      window.location.href = "./search.html";
+    } catch (err) {
+      console.error(err);
+      alert("Error: " + err.message);
+    }
+  });
+}
+
 /* =========================
    Search (search.html)
 ========================= */
-const keywordEl = document.getElementById("search-keyword");
-const locationEl = document.getElementById("search-location");
-const roleEl = document.getElementById("search-role");
-const clearBtn = document.getElementById("clear-btn");
 const resultsDiv = document.getElementById("results");
-const resultsCountEl = document.getElementById("results-count");
-const loadingEl = document.getElementById("loading");
 
 if (resultsDiv) {
+  const keywordEl = document.getElementById("search-keyword");
+  const locationEl = document.getElementById("search-location");
+  const roleEl = document.getElementById("search-role");
+
   const renderProfiles = (profiles) => {
     if (!profiles || profiles.length === 0) {
-      resultsDiv.innerHTML = `<div class="search-panel" style="margin-top:14px;">No profiles found.</div>`;
-      if (resultsCountEl) resultsCountEl.textContent = "0 results";
+      resultsDiv.innerHTML = "<p>No profiles found.</p>";
       return;
     }
 
     resultsDiv.innerHTML = profiles.map((p) => {
-      const id = p.id;
-      const name = p.name || "Unnamed";
-      const headline = p.headline || "—";
-      const location = p.location || "Lebanon";
       const avatar = p.avatar_url || "https://via.placeholder.com/80?text=User";
 
       return `
-        <a class="result-card" href="./profile.html?id=${encodeURIComponent(id)}">
+        <a class="result-card" href="./profile.html?id=${p.id}">
           <div class="result-top">
-            <img
-              class="result-avatar"
-              src="${avatar}"
-              alt="avatar"
-              loading="lazy"
-              decoding="async"
-              width="54"
-              height="54"
-            />
+            <img class="result-avatar" src="${avatar}" alt="Avatar" loading="lazy" decoding="async" />
             <div>
-              <h3 class="result-name">${name}</h3>
-              <p class="result-headline">${headline}</p>
+              <h3>${p.name || ""}</h3>
+              <p>${p.headline || ""}</p>
             </div>
           </div>
-          <div class="result-meta">${location}</div>
+
+          <div class="result-meta">
+            ${p.location || ""}
+          </div>
         </a>
       `;
     }).join("");
   };
 
-  const loadAllProfiles = async () => {
-    if (loadingEl) loadingEl.style.display = "inline";
-    if (resultsCountEl) resultsCountEl.textContent = "Loading latest profiles…";
-
-    const { data, error } = await window.supabaseClient
+  const loadProfiles = async () => {
+    let query = supabaseClient
       .from("profiles")
-      .select("id, name, headline, location, avatar_url, skills")
-      .order("created_at", { ascending: false })
-      .limit(60);
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    if (loadingEl) loadingEl.style.display = "none";
-
-    if (error) {
-      console.error("❌ Search load error:", error);
-      resultsDiv.innerHTML = `<div class="search-panel" style="margin-top:14px;">Error loading profiles.</div>`;
-      if (resultsCountEl) resultsCountEl.textContent = "0 results";
-      return;
-    }
-
-    if (resultsCountEl) resultsCountEl.textContent = `Showing latest (${data.length})`;
-    renderProfiles(data);
-  };
-
-  const searchProfiles = async () => {
-    const keyword = (keywordEl?.value || "").trim();
-    const location = (locationEl?.value || "").trim();
-    const role = (roleEl?.value || "").trim();
-
-    if (!keyword && !location && !role) {
-      loadAllProfiles();
-      return;
-    }
-
-    if (loadingEl) loadingEl.style.display = "inline";
-    if (resultsCountEl) resultsCountEl.textContent = "Searching…";
-
-    let query = window.supabaseClient
-      .from("profiles")
-      .select("id, name, headline, location, avatar_url, skills")
-      .order("created_at", { ascending: false })
-      .limit(60);
+    const keyword = keywordEl?.value.trim();
+    const location = locationEl?.value.trim();
+    const role = roleEl?.value.trim();
 
     if (keyword) {
-      query = query.or(`name.ilike.%${keyword}%,headline.ilike.%${keyword}%,skills.ilike.%${keyword}%`);
+      query = query.ilike("name", `%${keyword}%`);
     }
 
     if (location) {
@@ -103,39 +150,129 @@ if (resultsDiv) {
 
     const { data, error } = await query;
 
-    if (loadingEl) loadingEl.style.display = "none";
-
     if (error) {
-      console.error("❌ Search filter error:", error);
-      resultsDiv.innerHTML = `<div class="search-panel" style="margin-top:14px;">Error searching profiles.</div>`;
-      if (resultsCountEl) resultsCountEl.textContent = "0 results";
+      console.error(error);
+      resultsDiv.innerHTML = "<p>Error loading profiles.</p>";
       return;
     }
 
-    if (resultsCountEl) resultsCountEl.textContent = `${data.length} result${data.length === 1 ? "" : "s"}`;
     renderProfiles(data);
   };
 
-  let timer = null;
-  const runAutoSearch = () => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      searchProfiles();
-    }, 350);
+  loadProfiles();
+
+  keywordEl?.addEventListener("input", loadProfiles);
+  locationEl?.addEventListener("input", loadProfiles);
+  roleEl?.addEventListener("input", loadProfiles);
+}
+/* =========================
+   Profile Page (profile.html)
+========================= */
+const profileContainer = document.getElementById("profile-container");
+
+if (profileContainer) {
+  const params = new URLSearchParams(window.location.search);
+  const profileId = params.get("id");
+
+  const loadProfile = async () => {
+    if (!profileId) {
+      profileContainer.innerHTML = "<p>No profile id.</p>";
+      return;
+    }
+
+    profileContainer.innerHTML = "<p>Loading profile...</p>";
+
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", profileId)
+      .single();
+
+    if (error) {
+      console.error(error);
+      profileContainer.innerHTML = "<p>Error loading profile.</p>";
+      return;
+    }
+
+    const avatar = data.avatar_url || "https://via.placeholder.com/150?text=User";
+
+    const skillsList = (data.skills || "")
+      .split(",")
+      .map((skill) => skill.trim())
+      .filter(Boolean)
+      .map((skill) => `<span class="skill-tag">${skill}</span>`)
+      .join("");
+
+    profileContainer.innerHTML = `
+      <div class="simple-profile">
+        <div class="simple-profile-topbar"></div>
+
+        <div class="simple-profile-header">
+          <img src="${avatar}" class="simple-profile-avatar" alt="Avatar" />
+
+          <div class="simple-profile-info">
+            <h1>${data.name || "No name"}</h1>
+            <p class="simple-headline">${data.headline || "No headline yet."}</p>
+
+            <div class="simple-meta">
+              <span>${data.location || "No location"}</span>
+              <span>${data.phone || "No phone"}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="simple-profile-section">
+          <h3>About</h3>
+          <p>${data.bio || "No bio yet."}</p>
+        </div>
+
+        <div class="simple-profile-section">
+          <h3>Skills</h3>
+          <div class="skills-wrap">
+            ${skillsList || '<span class="no-skills">No skills added yet.</span>'}
+          </div>
+        </div>
+      </div>
+    `;
   };
 
-  if (keywordEl) keywordEl.addEventListener("input", runAutoSearch);
-  if (locationEl) locationEl.addEventListener("input", runAutoSearch);
-  if (roleEl) roleEl.addEventListener("input", runAutoSearch);
+  loadProfile();
+}
+/* =========================
+   Featured Users (index.html)
+========================= */
+const featuredUsersContainer = document.getElementById("featured-users");
 
-  if (clearBtn) {
-    clearBtn.addEventListener("click", () => {
-      if (keywordEl) keywordEl.value = "";
-      if (locationEl) locationEl.value = "";
-      if (roleEl) roleEl.value = "";
-      loadAllProfiles();
-    });
-  }
+if (featuredUsersContainer) {
+  const loadFeaturedUsers = async () => {
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("id, name, headline, avatar_url")
+      .order("created_at", { ascending: false })
+      .limit(4);
 
-  loadAllProfiles();
+    if (error) {
+      console.error(error);
+      featuredUsersContainer.innerHTML = "<p>Error loading featured users.</p>";
+      return;
+    }
+
+    featuredUsersContainer.innerHTML = data.map((user) => {
+      const avatar = user.avatar_url || "https://via.placeholder.com/80?text=User";
+
+      return `
+        <a class="user-card" href="./profile.html?id=${user.id}">
+          <div class="user-top">
+            <img src="${avatar}" alt="Avatar" loading="lazy" decoding="async" />
+            <div>
+              <h3>${user.name || ""}</h3>
+              <p>${user.headline || ""}</p>
+            </div>
+          </div>
+        </a>
+      `;
+    }).join("");
+  };
+
+  loadFeaturedUsers();
 }
