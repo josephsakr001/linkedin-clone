@@ -196,6 +196,11 @@ if (profileContainer) {
 
     const avatar = data.avatar_url || "https://via.placeholder.com/150?text=User";
 
+    const salary =
+      data.salary_min || data.salary_max
+        ? `${data.salary_min || "?"} - ${data.salary_max || "?"} USD`
+        : "Not specified";
+
     const skillsList = (data.skills || "")
       .split(",")
       .map((skill) => skill.trim())
@@ -213,10 +218,25 @@ if (profileContainer) {
           <div class="simple-profile-info">
             <h1>${data.name || "No name"}</h1>
             <p class="simple-headline">${data.headline || "No headline yet."}</p>
+          </div>
+        </div>
 
-            <div class="simple-meta">
-              <span>${data.location || "No location"}</span>
-              <span>${data.phone || "No phone"}</span>
+        <div class="simple-profile-section">
+          <h3>Details</h3>
+          <div class="profile-details-grid">
+            <div class="detail-box">
+              <span class="detail-label">Location</span>
+              <strong>${data.location || "Not provided"}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span class="detail-label">Phone</span>
+              <strong>${data.phone || "Not provided"}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span class="detail-label">Salary</span>
+              <strong>${salary}</strong>
             </div>
           </div>
         </div>
