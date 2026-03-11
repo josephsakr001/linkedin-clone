@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Public Search</title>
+  <title>Search Profiles</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-
-  <!-- ✅ Use .navbar (matches your CSS) -->
   <nav class="navbar">
     <a class="brand" href="./index.html">LinkedIn Clone</a>
 
@@ -21,84 +19,72 @@
 
   <main class="page">
     <div class="page-inner">
-
       <div class="search-header">
         <h1>Search Professionals</h1>
-        <p>Find talent by keyword, location, and role — fast.</p>
+        <p>Find talent by name, location, or role.</p>
       </div>
 
-      <div class="search-row cool">
+      <div class="search-panel">
+        <div class="search-row">
+          <div class="field">
+            <label for="search-keyword">Name</label>
+            <input
+              id="search-keyword"
+              type="text"
+              placeholder="Search by name"
+            />
+          </div>
 
-  <div class="field cool-field">
-    <label for="search-keyword">Search</label>
-    <div class="input-wrap">
-      <span class="icon">🔎</span>
-      <input id="search-keyword" type="text" placeholder="Name, skill, or job..." />
-    </div>
-  </div>
+          <div class="field">
+            <label for="search-location">Location</label>
+            <input
+              id="search-location"
+              type="text"
+              list="lb-areas"
+              placeholder="Search by location"
+            />
+            <datalist id="lb-areas">
+              <option value="Beirut"></option>
+              <option value="Mount Lebanon"></option>
+              <option value="North Lebanon"></option>
+              <option value="Akkar"></option>
+              <option value="Bekaa"></option>
+              <option value="Baalbek-Hermel"></option>
+              <option value="South Lebanon"></option>
+              <option value="Nabatieh"></option>
+            </datalist>
+          </div>
 
-  <div class="field cool-field">
-    <label for="search-location">Area</label>
-    <div class="input-wrap">
-      <span class="icon">📍</span>
-      <input id="search-location" list="lb-areas" placeholder="Type or pick area..." />
-      <datalist id="lb-areas">
-        <option value="Beirut"></option>
-        <option value="Mount Lebanon"></option>
-        <option value="North Lebanon"></option>
-        <option value="Akkar"></option>
-        <option value="Bekaa"></option>
-        <option value="Baalbek-Hermel"></option>
-        <option value="South Lebanon"></option>
-        <option value="Nabatieh"></option>
-      </datalist>
-    </div>
-  </div>
-
-  <div class="field cool-field">
-    <label for="search-role">Role</label>
-    <div class="input-wrap">
-      <span class="icon">💼</span>
-      <input id="search-role" list="job-roles" placeholder="Type or pick role..." />
-      <datalist id="job-roles">
-        <option value="Software Developer"></option>
-        <option value="Frontend Developer"></option>
-        <option value="Backend Developer"></option>
-        <option value="Full Stack Developer"></option>
-        <option value="UI/UX Designer"></option>
-        <option value="Graphic Designer"></option>
-        <option value="Data Analyst"></option>
-        <option value="Accountant"></option>
-        <option value="Sales"></option>
-        <option value="Marketing"></option>
-        <option value="HR"></option>
-        <option value="Customer Support"></option>
-        <option value="Project Manager"></option>
-        <option value="Engineer"></option>
-        <option value="Teacher"></option>
-      </datalist>
-    </div>
-  </div>
-
-</div>
-
-    
-      
-        </div>
-
-        <div class="search-actions">
-          <button id="search-btn" class="btn">Search</button>
-          <button id="clear-btn" class="btn btn-secondary" type="button">Clear</button>
-        </div>
-
-        <div class="search-meta">
-          <span id="results-count">Showing latest profiles</span>
-          <span id="loading" class="loading" style="display:none;">Loading…</span>
+          <div class="field">
+            <label for="search-role">Role or Skill</label>
+            <input
+              id="search-role"
+              type="text"
+              list="job-roles"
+              placeholder="Search by role or skill"
+            />
+            <datalist id="job-roles">
+              <option value="Software Developer"></option>
+              <option value="Frontend Developer"></option>
+              <option value="Backend Developer"></option>
+              <option value="Full Stack Developer"></option>
+              <option value="UI/UX Designer"></option>
+              <option value="Graphic Designer"></option>
+              <option value="Data Analyst"></option>
+              <option value="Accountant"></option>
+              <option value="Sales"></option>
+              <option value="Marketing"></option>
+              <option value="HR"></option>
+              <option value="Customer Support"></option>
+              <option value="Project Manager"></option>
+              <option value="Engineer"></option>
+              <option value="Teacher"></option>
+            </datalist>
+          </div>
         </div>
       </div>
 
       <div id="results" class="results-grid"></div>
-
     </div>
   </main>
 
