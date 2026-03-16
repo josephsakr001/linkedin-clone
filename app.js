@@ -26,7 +26,7 @@ if (registerForm) {
     const salaryMin = parseInt(document.getElementById("salary-min")?.value || 0, 10);
     const salaryMax = parseInt(document.getElementById("salary-max")?.value || 0, 10);
 
-    let avatarFile = document.getElementById("avatar")?.files?.[0] || null;
+    const avatarFile = document.getElementById("avatar")?.files?.[0] || null;
 
     try {
       const { data: signUpData, error: signUpError } =
@@ -165,6 +165,7 @@ if (resultsDiv) {
   locationEl?.addEventListener("input", loadProfiles);
   roleEl?.addEventListener("input", loadProfiles);
 }
+
 /* =========================
    Profile Page (profile.html)
 ========================= */
@@ -194,6 +195,10 @@ if (profileContainer) {
       return;
     }
 
+    const { data: authData } = await supabaseClient.auth.getUser();
+    const currentUserId = authData?.user?.id || null;
+    const isOwner = currentUserId && currentUserId === data.user_id;
+
     const avatar = data.avatar_url || "https://via.placeholder.com/150?text=User";
 
     const salary =
@@ -218,6 +223,7 @@ if (profileContainer) {
           <div class="simple-profile-info">
             <h1>${data.name || "No name"}</h1>
             <p class="simple-headline">${data.headline || "No headline yet."}</p>
+            ${isOwner ? `<a href="./edit-profile.html" class="edit-profile-btn">Edit Profile</a>` : ""}
           </div>
         </div>
 
@@ -259,6 +265,146 @@ if (profileContainer) {
   loadProfile();
 }
 /* =========================
+   Edit Profile Page (edit-profile.html)
+========================= */
+const editProfileForm = document.getElementById("edit-profile-form");
+
+if (editProfileForm) {
+  let currentProfileId = null;
+
+  const loadEditProfile = async () => {
+    try {
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+
+      if (authError || !authData?.user) {
+        alert("You must be logged in to edit your profile.");
+        window.location.href = "./login.html";
+        return;
+      }
+
+      const userId = authData.user.id;
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (profileError || !profile) {
+        console.error(profileError);
+        alert("Could not load profile.");
+        return;
+      }
+
+      currentProfileId = profile.id;
+
+      document.getElementById("edit-name").value = profile.name || "";
+      document.getElementById("edit-headline").value = profile.headline || "";
+      document.getElementById("edit-skills").value = profile.skills || "";
+      document.getElementById("edit-location").value = profile.location || "";
+      document.getElementById("edit-phone").value = profile.phone || "";
+      document.getElementById("edit-bio").value = profile.bio || "";
+      document.getElementById("edit-salary-min").value = profile.salary_min || "";
+      document.getElementById("edit-salary-max").value = profile.salary_max || "";
+    } catch (err) {
+      console.error(err);
+      alert("Error loading edit page.");
+    }
+  };
+
+  loadEditProfile();
+
+  editProfileForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    try {
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+
+      if (authError || !authData?.user) {
+        alert("You must be logged in.");
+        window.location.href = "./login.html";
+        return;
+      }
+
+      const userId = authData.user.id;
+
+      const updatedProfile = {
+        name: document.getElementById("edit-name").value.trim(),
+        headline: document.getElementById("edit-headline").value.trim(),
+        skills: document.getElementById("edit-skills").value.trim(),
+        location: document.getElementById("edit-location").value.trim(),
+        phone: document.getElementById("edit-phone").value.trim(),
+        bio: document.getElementById("edit-bio").value.trim(),
+        salary_min: parseInt(document.getElementById("edit-salary-min").value || 0, 10) || null,
+        salary_max: parseInt(document.getElementById("edit-salary-max").value || 0, 10) || null
+      };
+
+      const { error: updateError } = await supabaseClient
+        .from("profiles")
+        .update(updatedProfile)
+        .eq("user_id", userId);
+
+      if (updateError) {
+        console.error(updateError);
+        alert("Update failed: " + updateError.message);
+        return;
+      }
+
+      alert("Profile updated successfully ✅");
+
+      if (currentProfileId) {
+        window.location.href = `./profile.html?id=${currentProfileId}`;
+      } else {
+        window.location.href = "./search.html";
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error: " + err.message);
+    }
+  });
+}
+
+/* =========================
+   My Profile Link
+========================= */
+const myProfileLink = document.getElementById("my-profile-link");
+
+if (myProfileLink) {
+  const loadMyProfileLink = async () => {
+    try {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+
+      // not logged in
+      if (!user) {
+        myProfileLink.style.display = "none";
+        return;
+      }
+
+      // logged in → show link
+      myProfileLink.style.display = "inline-block";
+
+      const { data: profile } = await supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profile) {
+        myProfileLink.href = `./profile.html?id=${profile.id}`;
+      } else {
+        // user logged in but didn't create profile yet
+        myProfileLink.href = "./register.html";
+      }
+
+    } catch (err) {
+      console.error("My Profile error:", err);
+    }
+  };
+
+  loadMyProfileLink();
+}
+
+/* =========================
    Featured Users (index.html)
 ========================= */
 const featuredUsersContainer = document.getElementById("featured-users");
@@ -295,4 +441,38 @@ if (featuredUsersContainer) {
   };
 
   loadFeaturedUsers();
+}
+
+
+
+
+
+
+/* =========================
+   Login (login.html)
+========================= */
+const loginForm = document.getElementById("login-form");
+
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      alert("Login successful ✅");
+      window.location.href = "./search.html";
+    } catch (err) {
+      console.error(err);
+      alert("Error: " + err.message);
+    }
+  });
 }
