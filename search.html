@@ -3,48 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Search Profiles</title>
+  <title>Search Profiles | CareXpert</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-<nav class="navbar">
-  <a class="brand" href="./index.html">CareXpert</a>
 
-  <div class="nav-links">
-    <a href="./index.html">Home</a>
-    <a href="./register.html">Register</a>
-    <a href="./login.html">Login</a>
-    <a href="./search.html">Search</a>
-    <a href="#" id="my-profile-link" style="display:none;">My Profile</a>
-  </div>
-</nav>
+  <nav class="navbar">
+    <a class="brand" href="./index.html">CareXpert</a>
+
+    <div class="nav-links">
+      <a href="./index.html">Home</a>
+      <a href="./packages.html">Register</a>
+      <a href="./login.html">Login</a>
+      <a href="./search.html">Search</a>
+      <a href="#" id="my-profile-link" style="display:none;">My Profile</a>
+    </div>
+  </nav>
 
   <main class="page">
     <div class="page-inner">
       <div class="search-header">
         <h1>Search Professionals</h1>
-        <p>Find talent by name, location, or role.</p>
+        <p>Find active professionals by name, location, role, or skill.</p>
       </div>
 
       <div class="search-panel">
         <div class="search-row">
           <div class="field">
             <label for="search-keyword">Name</label>
-            <input
-              id="search-keyword"
-              type="text"
-              placeholder="Search by name"
-            />
+            <input id="search-keyword" type="text" placeholder="Search by name" />
           </div>
 
           <div class="field">
             <label for="search-location">Location</label>
-            <input
-              id="search-location"
-              type="text"
-              list="lb-areas"
-              placeholder="Search by location"
-            />
+            <input id="search-location" type="text" list="lb-areas" placeholder="Search by location" />
             <datalist id="lb-areas">
               <option value="Beirut"></option>
               <option value="Mount Lebanon"></option>
@@ -59,12 +51,7 @@
 
           <div class="field">
             <label for="search-role">Role or Skill</label>
-            <input
-              id="search-role"
-              type="text"
-              list="job-roles"
-              placeholder="Search by role or skill"
-            />
+            <input id="search-role" type="text" list="job-roles" placeholder="Search by role or skill" />
             <datalist id="job-roles">
               <option value="Software Developer"></option>
               <option value="Frontend Developer"></option>

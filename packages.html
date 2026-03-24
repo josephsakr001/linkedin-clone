@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose a Plan | CareXpert</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="brand" href="./index.html">CareXpert</a>
+
+    <div class="nav-links">
+      <a href="./index.html">Home</a>
+      <a href="./packages.html">Register</a>
+      <a href="./login.html">Login</a>
+      <a href="./search.html">Search</a>
+      <a href="#" id="my-profile-link" style="display:none;">My Profile</a>
+    </div>
+  </nav>
+
+  <main class="pricing-page">
+    <section class="pricing-hero">
+      <p class="pricing-label">Flexible Plans</p>
+      <h1>Choose the Plan That Fits Your Career</h1>
+      <p class="pricing-subtitle">
+        Get your profile published on CareXpert and increase your visibility
+        to recruiters and professionals across Lebanon.
+      </p>
+    </section>
+
+    <section class="pricing-grid">
+
+      <div class="pricing-card starter-plan">
+        <div class="pricing-card-header">
+          <h3>Starter</h3>
+          <p>Best for short-term exposure</p>
+        </div>
+
+        <div class="pricing-price">
+          <span class="price">$3</span>
+          <span class="duration">/ 1 month</span>
+        </div>
+
+        <ul class="pricing-features">
+          <li>✔ Public professional profile</li>
+          <li>✔ Search visibility</li>
+          <li>✔ Add skills, bio, and salary range</li>
+          <li>✔ Upload profile image</li>
+        </ul>
+
+        <button class="btn pricing-btn" data-plan="starter" type="button">Get Started</button>
+      </div>
+
+      <div class="pricing-card featured-plan">
+        <div class="plan-badge">Most Popular</div>
+
+        <div class="pricing-card-header">
+          <h3>Professional</h3>
+          <p>Best value for serious job seekers</p>
+        </div>
+
+        <div class="pricing-price">
+          <span class="price">$10</span>
+          <span class="duration">/ 4 months</span>
+        </div>
+
+        <ul class="pricing-features">
+          <li>✔ Everything in Starter</li>
+          <li>✔ Longer profile visibility</li>
+          <li>✔ Better value for active applicants</li>
+          <li>✔ Stronger long-term presence</li>
+        </ul>
+
+        <button class="btn pricing-btn" data-plan="professional" type="button">Choose Professional</button>
+      </div>
+
+      <div class="pricing-card premium-plan">
+        <div class="pricing-card-header">
+          <h3>Premium</h3>
+          <p>For maximum long-term visibility</p>
+        </div>
+
+        <div class="pricing-price">
+          <span class="price">$25</span>
+          <span class="duration">/ 1 year</span>
+        </div>
+
+        <ul class="pricing-features">
+          <li>✔ Everything in Professional</li>
+          <li>✔ 12 months visibility</li>
+          <li>✔ Best long-term value</li>
+          <li>✔ Ideal for continuous exposure</li>
+        </ul>
+
+        <button class="btn pricing-btn" data-plan="premium" type="button">Choose Premium</button>
+      </div>
+
+    </section>
+
+    <section class="pricing-footer-note">
+      <p>
+        All plans include access to profile creation, public listing, and professional presentation.
+      </p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="./supabaseClient.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

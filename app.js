@@ -6,7 +6,31 @@ console.log("APP JS RUNNING");
 const supabaseClient = window.supabaseClient;
 
 /* =========================
+   Helpers
+========================= */
+function getExpiryDate(plan) {
+  const now = new Date();
+
+  if (plan === "starter") {
+    now.setMonth(now.getMonth() + 1);
+  } else if (plan === "professional") {
+    now.setMonth(now.getMonth() + 4);
+  } else if (plan === "premium") {
+    now.setFullYear(now.getFullYear() + 1);
+  }
+
+  return now.toISOString();
+}
+
+function getPlanRank(plan) {
+  if (plan === "premium") return 3;
+  if (plan === "professional") return 2;
+  return 1;
+}
+
+/* =========================
    Register (register.html)
+   Save CV data first, then open packages
 ========================= */
 const registerForm = document.getElementById("register-form");
 
@@ -29,59 +53,34 @@ if (registerForm) {
     const avatarFile = document.getElementById("avatar")?.files?.[0] || null;
 
     try {
-      const { data: signUpData, error: signUpError } =
-        await supabaseClient.auth.signUp({ email, password });
+      const pendingData = {
+        name,
+        headline,
+        skills,
+        location,
+        phone,
+        bio,
+        email,
+        password,
+        salaryMin,
+        salaryMax
+      };
 
-      if (signUpError) throw signUpError;
-
-      let userId = signUpData?.user?.id;
-
-      if (!userId) {
-        const { data: signInData, error: signInError } =
-          await supabaseClient.auth.signInWithPassword({ email, password });
-
-        if (signInError) throw signInError;
-        userId = signInData.user.id;
-      }
-
-      let avatarUrl = null;
+      localStorage.setItem("pendingRegistration", JSON.stringify(pendingData));
 
       if (avatarFile) {
-        const fileName = `public/${userId}.jpg`;
+        const reader = new FileReader();
 
-        const { error: uploadError } = await supabaseClient.storage
-          .from("avatars")
-          .upload(fileName, avatarFile, { upsert: true });
+        reader.onload = function () {
+          localStorage.setItem("pendingAvatar", reader.result);
+          window.location.href = "./packages.html";
+        };
 
-        if (uploadError) throw uploadError;
-
-        const { data } = supabaseClient.storage
-          .from("avatars")
-          .getPublicUrl(fileName);
-
-        avatarUrl = data.publicUrl;
+        reader.readAsDataURL(avatarFile);
+      } else {
+        localStorage.removeItem("pendingAvatar");
+        window.location.href = "./packages.html";
       }
-
-      const { error: profileError } = await supabaseClient
-        .from("profiles")
-        .insert([{
-          user_id: userId,
-          name,
-          headline,
-          skills,
-          location,
-          phone,
-          bio,
-          salary_min: salaryMin || null,
-          salary_max: salaryMax || null,
-          avatar_url: avatarUrl
-        }]);
-
-      if (profileError) throw profileError;
-
-      alert("Registration successful ✅");
-      registerForm.reset();
-      window.location.href = "./search.html";
     } catch (err) {
       console.error(err);
       alert("Error: " + err.message);
@@ -90,7 +89,120 @@ if (registerForm) {
 }
 
 /* =========================
+   Packages (packages.html)
+   Create account + profile only after package choice
+========================= */
+const pricingButtons = document.querySelectorAll(".pricing-btn");
+
+if (pricingButtons.length > 0) {
+  pricingButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      const selectedPlan = button.dataset.plan;
+      const savedData = JSON.parse(localStorage.getItem("pendingRegistration") || "null");
+      const savedAvatar = localStorage.getItem("pendingAvatar");
+
+      if (!savedData) {
+        alert("Please complete your CV first.");
+        window.location.href = "./register.html";
+        return;
+      }
+
+      try {
+        const {
+          name,
+          headline,
+          skills,
+          location,
+          phone,
+          bio,
+          email,
+          password,
+          salaryMin,
+          salaryMax
+        } = savedData;
+
+        const { data: signUpData, error: signUpError } =
+          await supabaseClient.auth.signUp({ email, password });
+
+        if (signUpError) throw signUpError;
+
+        let userId = signUpData?.user?.id;
+
+        if (!userId) {
+          const { data: signInData, error: signInError } =
+            await supabaseClient.auth.signInWithPassword({ email, password });
+
+          if (signInError) throw signInError;
+          userId = signInData.user.id;
+        }
+
+        const DEFAULT_AVATAR =
+          "https://ui-avatars.com/api/?name=CareXpert+User&background=0A66C2&color=ffffff&size=200&bold=true";
+
+        let avatarUrl = DEFAULT_AVATAR;
+
+        if (savedAvatar) {
+          const response = await fetch(savedAvatar);
+          const blob = await response.blob();
+          const fileName = `public/${userId}.jpg`;
+
+          const { error: uploadError } = await supabaseClient.storage
+            .from("avatars")
+            .upload(fileName, blob, {
+              upsert: true,
+              contentType: blob.type || "image/jpeg"
+            });
+
+          if (uploadError) throw uploadError;
+
+          const { data } = supabaseClient.storage
+            .from("avatars")
+            .getPublicUrl(fileName);
+
+          avatarUrl = data.publicUrl;
+        }
+
+        const { error: profileError } = await supabaseClient
+          .from("profiles")
+          .insert([{
+            user_id: userId,
+            name,
+            headline,
+            skills,
+            location,
+            phone,
+            bio,
+            salary_min: salaryMin || null,
+            salary_max: salaryMax || null,
+            avatar_url: avatarUrl,
+            email: email,
+            plan: selectedPlan,
+            plan_rank: getPlanRank(selectedPlan),
+            payment_status: "paid",
+            is_active: true,
+            starts_at: new Date().toISOString(),
+            expires_at: getExpiryDate(selectedPlan),
+            reminder_sent: false
+          }]);
+
+        if (profileError) throw profileError;
+
+        localStorage.removeItem("pendingRegistration");
+        localStorage.removeItem("pendingAvatar");
+
+        alert(`Package selected: ${selectedPlan} ✅`);
+        window.location.href = "./search.html";
+      } catch (err) {
+        console.error(err);
+        alert("Error: " + err.message);
+      }
+    });
+  });
+}
+
+/* =========================
    Search (search.html)
+   Show only active + not expired profiles
 ========================= */
 const resultsDiv = document.getElementById("results");
 
@@ -109,7 +221,7 @@ if (resultsDiv) {
       const avatar = p.avatar_url || "https://via.placeholder.com/80?text=User";
 
       return `
-        <a class="result-card" href="./profile.html?id=${p.id}">
+        <a class="result-card ${p.plan || "starter"}" href="./profile.html?id=${p.id}">
           <div class="result-top">
             <img class="result-avatar" src="${avatar}" alt="Avatar" loading="lazy" decoding="async" />
             <div>
@@ -130,6 +242,9 @@ if (resultsDiv) {
     let query = supabaseClient
       .from("profiles")
       .select("*")
+      .eq("is_active", true)
+      .gt("expires_at", new Date().toISOString())
+      .order("plan_rank", { ascending: false })
       .order("created_at", { ascending: false });
 
     const keyword = keywordEl?.value.trim();
@@ -213,6 +328,10 @@ if (profileContainer) {
       .map((skill) => `<span class="skill-tag">${skill}</span>`)
       .join("");
 
+    const badge = data.plan
+      ? `<span class="profile-badge ${data.plan}">${data.plan}</span>`
+      : "";
+
     profileContainer.innerHTML = `
       <div class="simple-profile">
         <div class="simple-profile-topbar"></div>
@@ -221,7 +340,10 @@ if (profileContainer) {
           <img src="${avatar}" class="simple-profile-avatar" alt="Avatar" />
 
           <div class="simple-profile-info">
-            <h1>${data.name || "No name"}</h1>
+            <div class="profile-name-row">
+              <h1>${data.name || "No name"}</h1>
+              ${badge}
+            </div>
             <p class="simple-headline">${data.headline || "No headline yet."}</p>
             ${isOwner ? `<a href="./edit-profile.html" class="edit-profile-btn">Edit Profile</a>` : ""}
           </div>
@@ -264,6 +386,7 @@ if (profileContainer) {
 
   loadProfile();
 }
+
 /* =========================
    Edit Profile Page (edit-profile.html)
 ========================= */
@@ -374,13 +497,11 @@ if (myProfileLink) {
     try {
       const { data: { user } } = await supabaseClient.auth.getUser();
 
-      // not logged in
       if (!user) {
         myProfileLink.style.display = "none";
         return;
       }
 
-      // logged in → show link
       myProfileLink.style.display = "inline-block";
 
       const { data: profile } = await supabaseClient
@@ -392,10 +513,8 @@ if (myProfileLink) {
       if (profile) {
         myProfileLink.href = `./profile.html?id=${profile.id}`;
       } else {
-        // user logged in but didn't create profile yet
         myProfileLink.href = "./register.html";
       }
-
     } catch (err) {
       console.error("My Profile error:", err);
     }
@@ -413,7 +532,10 @@ if (featuredUsersContainer) {
   const loadFeaturedUsers = async () => {
     const { data, error } = await supabaseClient
       .from("profiles")
-      .select("id, name, headline, avatar_url")
+      .select("id, name, headline, avatar_url, plan")
+      .eq("is_active", true)
+      .gt("expires_at", new Date().toISOString())
+      .order("plan_rank", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(4);
 
@@ -427,7 +549,7 @@ if (featuredUsersContainer) {
       const avatar = user.avatar_url || "https://via.placeholder.com/80?text=User";
 
       return `
-        <a class="user-card" href="./profile.html?id=${user.id}">
+        <a class="user-card ${user.plan || "starter"}" href="./profile.html?id=${user.id}">
           <div class="user-top">
             <img src="${avatar}" alt="Avatar" loading="lazy" decoding="async" />
             <div>
@@ -443,11 +565,6 @@ if (featuredUsersContainer) {
   loadFeaturedUsers();
 }
 
-
-
-
-
-
 /* =========================
    Login (login.html)
 ========================= */
@@ -461,7 +578,7 @@ if (loginForm) {
     const password = document.getElementById("login-password").value;
 
     try {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
+      const { error } = await supabaseClient.auth.signInWithPassword({
         email,
         password
       });
