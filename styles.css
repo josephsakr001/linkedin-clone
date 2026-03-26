@@ -289,14 +289,18 @@ button:hover,
 }
 
 .user-card.professional {
-  border: 2px solid #0a66c2;
-  background: #f0f6ff;
+ 
+  background-color: #f0f6ff;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+  border-radius: 12px;
 }
 
 .user-card.premium {
-  border: 2px solid gold;
-  background: linear-gradient(135deg, #fff8dc, #fff);
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+ 
+  background: linear-gradient(135deg, #FFF8DC, #F5E6A3);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+  border-radius: 12px;
+
 }
 
 /* =========================
@@ -647,7 +651,7 @@ button:hover,
   background: #D4AF37;
   color: white;
   padding: 2px 8px;
-  border-radius: 6px;
+ 
   font-size: 12px;
 }
 
@@ -1020,7 +1024,6 @@ button:hover,
   color: #6b7280;
   font-size: 14px;
 }
-
 /* =========================
    RESPONSIVE
 ========================= */
@@ -1099,8 +1102,15 @@ button:hover,
   }
 
   .nav-links {
-    flex-wrap: wrap;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 8px;
+    width: 100%;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
   }
 
   .container {
@@ -1114,5 +1124,21 @@ button:hover,
 
   .simple-profile {
     margin: 20px 12px;
+  }
+
+  .testimonials-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 14px;
+    padding-bottom: 10px;
+  }
+
+  .testimonials-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .testimonial-card {
+    min-width: 260px;
+    flex: 0 0 auto;
   }
 }
