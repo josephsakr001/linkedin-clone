@@ -640,14 +640,28 @@ button:hover,
 }
 
 .result-card.professional {
-  border: 2px solid #0a66c2;
+
   background: #f0f6ff;
+}
+.badge {
+  background: #D4AF37;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
 }
 
 .result-card.premium {
-  border: 2px solid gold;
-  background: linear-gradient(135deg, #fff8dc, #fff);
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+ 
+  background: linear-gradient(135deg, #FFF8DC, #F5E6A3);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+  border-radius: 12px;
+
+}
+
+.result-premium-card:hover {
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.5);
+  transform: translateY(-2px);
 }
 
 /* =========================
