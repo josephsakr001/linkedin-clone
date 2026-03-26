@@ -487,6 +487,27 @@ if (editProfileForm) {
   });
 }
 
+
+const skillSelect = document.getElementById("skill-select");
+const skillsInput = document.getElementById("skills");
+
+if (skillSelect && skillsInput) {
+  let selectedSkills = [];
+
+  skillSelect.addEventListener("change", () => {
+    const skill = skillSelect.value;
+
+    if (!skill) return;
+    if (selectedSkills.includes(skill)) {
+      skillSelect.value = "";
+      return;
+    }
+
+    selectedSkills.push(skill);
+    skillsInput.value = selectedSkills.join(", ");
+    skillSelect.value = "";
+  });
+}
 /* =========================
    My Profile Link
 ========================= */

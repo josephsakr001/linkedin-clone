@@ -886,6 +886,23 @@ button:hover,
   transform: translateY(-8px);
 }
 
+
+select {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  background: white;
+}
+
+select:focus {
+  outline: none;
+  border-color: #0a66c2;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+}
+
 /* Starter package */
 .starter-plan {
   background: #ffffff;

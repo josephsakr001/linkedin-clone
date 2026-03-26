@@ -25,9 +25,44 @@
 
     <form id="register-form">
       <input type="text" id="name" placeholder="Full Name" required />
+<select id="headline" required>
+  <option value="">Select your role</option>
+  <option>Web Developer</option>
+  <option>Frontend Developer</option>
+  <option>Backend Developer</option>
+  <option>Full Stack Developer</option>
+  <option>UI/UX Designer</option>
+  <option>Graphic Designer</option>
+  <option>Data Analyst</option>
+  <option>Accountant</option>
+  <option>Sales</option>
+  <option>Marketing</option>
+  <option>HR</option>
+  <option>Customer Support</option>
+  <option>Project Manager</option>
+  <option>Engineer</option>
+  <option>Teacher</option>
+</select>
 
-      <input type="text" id="headline" placeholder="Headline (e.g., Web Developer)" required />
-      <input type="text" id="skills" placeholder="Skills (comma separated: JS, HTML, CSS)" required />
+<div class="field">
+  <select id="skill-select">
+    <option value="">Select a skill</option>
+    <option value="JavaScript">JavaScript</option>
+    <option value="HTML">HTML</option>
+    <option value="CSS">CSS</option>
+    <option value="React">React</option>
+    <option value="Node.js">Node.js</option>
+    <option value="UI/UX">UI/UX</option>
+    <option value="Marketing">Marketing</option>
+  </select>
+
+  <input type="text" id="skills" placeholder="Selected skills" readonly required />
+</div>
+
+  <div id="selected-skills" class="selected-skills"></div>
+
+  <input type="hidden" id="skills" required />
+</div>
       <input type="text" id="location" placeholder="Location (e.g., Beirut)" required />
 
       <div class="field">
