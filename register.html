@@ -13,7 +13,7 @@
 
     <div class="nav-links">
       <a href="./index.html">Home</a>
-      <a href="./packages.html">Register</a>
+      <a href="./register.html">Register</a>
       <a href="./login.html">Login</a>
       <a href="./search.html">Search</a>
       <a href="#" id="my-profile-link" style="display:none;">My Profile</a>
@@ -63,7 +63,17 @@
 
   <input type="hidden" id="skills" required />
 </div>
-      <input type="text" id="location" placeholder="Location (e.g., Beirut)" required />
+   <select id="location" required>
+  <option value="">Select Location</option>
+  <option>Beirut</option>
+  <option>Mount Lebanon</option>
+  <option>North Lebanon</option>
+  <option>Akkar</option>
+  <option>Bekaa</option>
+  <option>Baalbek-Hermel</option>
+  <option>South Lebanon</option>
+  <option>Nabatieh</option>
+</select>
 
       <div class="field">
         <input type="tel" id="phone" placeholder=" phone number : +961 03 123 456" required />
