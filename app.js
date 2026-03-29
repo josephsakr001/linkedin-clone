@@ -278,7 +278,7 @@ if (resultsDiv) {
 
   keywordEl?.addEventListener("input", loadProfiles);
   locationEl?.addEventListener("input", loadProfiles);
-  roleEl?.addEventListener("input", loadProfiles);
+ roleEl?.addEventListener("change", loadProfiles);
 }
 
 /* =========================

@@ -1059,6 +1059,95 @@ select:focus {
   border-color: #0a66c2;
   box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
 }
+
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  font-size: 14px;
+  background: white;
+  appearance: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+select:hover {
+  border-color: #0a66c2;
+}
+
+select:focus {
+  outline: none;
+  border-color: #0a66c2;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%230a66c2' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+}
+
+select {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  background: white;
+  appearance: none;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: #0a66c2;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+}
+
+.team-section {
+  margin: 60px 20px;
+  text-align: center;
+}
+
+.team-section h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.team-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  transition: 0.2s;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+}
+
+.team-card img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.team-role {
+  color: #0a66c2;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
 /* =========================
    RESPONSIVE
 ========================= */
@@ -1117,6 +1206,7 @@ select:focus {
     grid-template-columns: 1fr;
   }
 }
+
 @media (max-width: 600px) {
   body {
     overflow-x: hidden;
@@ -1179,4 +1269,29 @@ select:focus {
     min-width: 260px;
     flex: 0 0 auto;
   }
+
+  /* 🔥 ADD THESE INSIDE */
+  .search-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  select {
+    font-size: 16px;   /* important for phone */
+    padding: 14px;
+  }
 }
+ .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .testimonial-card p {
+    font-size: 13px;
+    line-height: 1.4;
+    
+    display: -webkit-box;
+    -webkit-line-clamp: 3;   /* 🔥 limit to 3 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+

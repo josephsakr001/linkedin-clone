@@ -51,26 +51,24 @@
 
           <div class="field">
             <label for="search-role">Role or Skill</label>
-            <input id="search-role" type="text" list="job-roles" placeholder="Search by role or skill" />
-            <datalist id="job-roles">
-              <option value="Software Developer"></option>
-              <option value="Frontend Developer"></option>
-              <option value="Backend Developer"></option>
-              <option value="Full Stack Developer"></option>
-              <option value="UI/UX Designer"></option>
-              <option value="Graphic Designer"></option>
-              <option value="Data Analyst"></option>
-              <option value="Accountant"></option>
-              <option value="Sales"></option>
-              <option value="Marketing"></option>
-              <option value="HR"></option>
-              <option value="Customer Support"></option>
-              <option value="Project Manager"></option>
-              <option value="Engineer"></option>
-              <option value="Teacher"></option>
-            </datalist>
-          </div>
-        </div>
+            <select id="search-role">
+             <option value="">All Roles / Skills</option>
+          <option>Software Developer</option>
+           <option>Frontend Developer</option>
+            <option>Backend Developer</option>
+              <option>Full Stack Developer</option>
+            <option>UI/UX Designer</option>
+            <option>Graphic Designer</option>
+        <option>Data Analyst</option>
+        <option>Accountant</option>
+         <option>Sales</option>
+         <option>Marketing</option>
+         <option>HR</option>
+          <option>Customer Support</option>
+           <option>Project Manager</option>
+          <option>Engineer</option>
+           <option>Teacher</option>
+</select>
       </div>
 
       <div id="results" class="results-grid"></div>
