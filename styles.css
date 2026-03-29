@@ -1173,3 +1173,27 @@ select:focus {
     flex: 0 0 auto;
   }
 }
+
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .brand {
+    margin-right: 8px;      /* move links closer */
+    font-size: 13px;        /* slightly smaller */
+    white-space: nowrap;    /* prevent breaking */
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 5px;
+  }
+
+  .nav-links a {
+    font-size: 11px;
+    padding: 5px 6px;
+  }
+}
