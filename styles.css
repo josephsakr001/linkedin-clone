@@ -984,14 +984,136 @@ button:hover, .btn:hover {
   .profile-details-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
 
-  /* ✅ TESTIMONIALS (KEEP SWIPE) */
+  body {
+    position: relative;
+  }
+
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .brand,
+  .logo {
+    font-size: 18px;
+    align-self: flex-start;
+    white-space: nowrap;
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  .nav-links a {
+    font-size: 12px;
+    padding: 8px 6px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .container {
+    margin: 20px 12px;
+    padding: 18px;
+  }
+
+  .page {
+    padding: 30px 12px;
+  }
+
+  .simple-profile {
+    margin: 20px 12px;
+  }
+
+  .search-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  select {
+    font-size: 16px;
+    padding: 14px;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 620px;
+    height: auto;
+    padding: 120px 0 60px;
+  }
+
+  .hero-content {
+    width: calc(100% - 24px);
+    padding: 24px 18px;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: 30px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  /* STORY */
+  .story-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .story-image {
+    order: -1;
+  }
+
+  /* PROFILE */
+  .simple-profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .simple-profile-avatar {
+    width: 84px;
+    height: 84px;
+  }
+
+  .simple-profile-info h1 {
+    font-size: 24px;
+  }
+
+  .profile-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* TESTIMONIALS - swipe only here */
+  .testimonials {
+    overflow: hidden;
+  }
+
+  .testimonials-inner {
+    overflow: hidden;
+  }
+
   .testimonials-grid {
     display: flex;
     overflow-x: auto;
+    overflow-y: hidden;
     gap: 12px;
-    padding: 10px;
-
+    padding: 10px 12px 14px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
   }
@@ -1001,19 +1123,61 @@ button:hover, .btn:hover {
   }
 
   .testimonial-card {
-    flex: 0 0 85%;
-    max-width: 85%;
+    flex: 0 0 82%;
+    min-width: 82%;
+    max-width: 82%;
     scroll-snap-align: center;
+    padding: 14px;
+    border-radius: 16px;
   }
 
-  /* ❌ REMOVE SLIDE FROM TEAM */
-  .team-grid {
-    display: grid; /* 🔥 THIS FIX */
-    grid-template-columns: 1fr; /* 🔥 one per line */
-    gap: 16px;
+  .testimonial-avatar {
+    width: 44px;
+    height: 44px;
   }
-.team-card {
-  padding: 18px;
-  text-align: center;
-}
+
+  .testimonial-name {
+    font-size: 14px;
+  }
+
+  .testimonial-role {
+    font-size: 12px;
+  }
+
+  .testimonial-text {
+    font-size: 13px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .testimonial-stars {
+    font-size: 13px;
+  }
+
+  .testimonials-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* TEAM - no swipe, one card per line */
+  .team-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    overflow: visible;
+  }
+
+  .team-card {
+    width: 100%;
+    min-width: 0;
+    padding: 18px;
+  }
+
+  .team-card img {
+    width: 90px;
+    height: 90px;
+  }
 }
