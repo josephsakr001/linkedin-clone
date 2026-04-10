@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Search Profiles | CareXpert</title>
+  <title>Find a Caregiver | CareXpert</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -23,54 +23,54 @@
   <main class="page">
     <div class="page-inner">
       <div class="search-header">
-        <h1>Search Professionals</h1>
-        <p>Find active professionals by name, location, role, or skill.</p>
+        <h1>Find a Caregiver</h1>
+        <p>Browse active caregivers by name, location, care type, or skill.</p>
       </div>
 
       <div class="search-panel">
         <div class="search-row">
           <div class="field">
-            <label for="search-keyword">Name</label>
-            <input id="search-keyword" type="text" placeholder="Search by name" />
+            <label for="search-keyword">Caregiver Name</label>
+            <input id="search-keyword" type="text" placeholder="Search by caregiver name" />
           </div>
 
           <div class="field">
             <label for="search-location">Location</label>
-           <select id="location" required>
-           <option value="">Select Location</option>
+            <select id="search-location">
+              <option value="">Select Location</option>
               <option>Beirut</option>
               <option>Mount Lebanon</option>
               <option>North Lebanon</option>
               <option>Akkar</option>
-             <option>Bekaa</option>
-             <option>Baalbek-Hermel</option>
-             <option>South Lebanon</option>
-             <option>Nabatieh</option>
-</select>
+              <option>Bekaa</option>
+              <option>Baalbek-Hermel</option>
+              <option>South Lebanon</option>
+              <option>Nabatieh</option>
+            </select>
           </div>
 
-      <div class="field">
-  <label for="search-role">Role or Skill</label>
-  <select id="search-role">
-    <option value="">All Roles / Skills</option>
-    <option value="Software Developer">Software Developer</option>
-    <option value="Frontend Developer">Frontend Developer</option>
-    <option value="Backend Developer">Backend Developer</option>
-    <option value="Full Stack Developer">Full Stack Developer</option>
-    <option value="UI/UX Designer">UI/UX Designer</option>
-    <option value="Graphic Designer">Graphic Designer</option>
-    <option value="Data Analyst">Data Analyst</option>
-    <option value="Accountant">Accountant</option>
-    <option value="Sales">Sales</option>
-    <option value="Marketing">Marketing</option>
-    <option value="HR">HR</option>
-    <option value="Customer Support">Customer Support</option>
-    <option value="Project Manager">Project Manager</option>
-    <option value="Engineer">Engineer</option>
-    <option value="Teacher">Teacher</option>
-  </select>
-</div>
-      <div id="results" class="results-grid"></div>
+          <div class="field">
+            <label for="search-role">Care Type or Skill</label>
+            <select id="search-role">
+              <option value="">All Care Types / Skills</option>
+              <option value="Elderly Care">Elderly Care</option>
+              <option value="Home Care">Home Care</option>
+              <option value="Post-Surgery Support">Post-Surgery Support</option>
+              <option value="Disability Support">Disability Support</option>
+              <option value="Child Care">Child Care</option>
+              <option value="Dementia Care">Dementia Care</option>
+              <option value="Palliative Care">Palliative Care</option>
+              <option value="Mobility Assistance">Mobility Assistance</option>
+              <option value="Medication Support">Medication Support</option>
+              <option value="Live-In Care">Live-In Care</option>
+              <option value="Part-Time Care">Part-Time Care</option>
+              <option value="Nursing Support">Nursing Support</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="results" class="results-grid"></div>
+      </div>
     </div>
   </main>
 

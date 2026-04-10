@@ -462,15 +462,13 @@ button:hover, .btn:hover {
 }
 
 /* SEARCH */
-
- .page {
-  padding-bottom: 150px; /* 🔥 gives space below */
+.page {
+  padding-bottom: 150px;
 }
 
 .search-panel {
   margin-bottom: 100px;
 }
-
 
 .page-inner {
   max-width: 1000px;
@@ -499,7 +497,7 @@ button:hover, .btn:hover {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  align-items: start; /* 🔥 important */
+  align-items: start;
 }
 
 .field label {
@@ -933,6 +931,34 @@ button:hover, .btn:hover {
   border-radius: 8px;
 }
 
+/* ===== FINAL SCROLL FIX ===== */
+html,
+body {
+  min-height: 100%;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body {
+  position: relative;
+}
+
+.container {
+  margin: 40px auto;
+  padding-bottom: 70px;
+}
+
+#register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#register-form button {
+  margin-top: 10px;
+}
+
 .footer-bottom {
   margin-top: 40px;
   text-align: center;
@@ -940,6 +966,16 @@ button:hover, .btn:hover {
   color: #a8c1b7;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 20px;
+}
+
+
+/* ===== DROPDOWN FIX ===== */
+.container {
+  padding-bottom: 200px; /* gives space so dropdown opens down */
+}
+
+select {
+  max-height: 200px; /* makes dropdown scroll instead of huge */
 }
 
 /* RESPONSIVE */
@@ -983,15 +1019,14 @@ button:hover, .btn:hover {
   .simple-profile-info h1 { font-size: 24px; }
   .profile-details-grid { grid-template-columns: 1fr; }
 }
+
 @media (max-width: 600px) {
   html,
   body {
     overflow-x: hidden;
+    overflow-y: auto;
     width: 100%;
-  }
-
-  body {
-    position: relative;
+    -webkit-overflow-scrolling: touch;
   }
 
   .navbar {
@@ -1025,6 +1060,7 @@ button:hover, .btn:hover {
   .container {
     margin: 20px 12px;
     padding: 18px;
+    padding-bottom: 90px;
   }
 
   .page {
@@ -1040,12 +1076,13 @@ button:hover, .btn:hover {
     gap: 10px;
   }
 
-  select {
+  select,
+  input,
+  textarea {
     font-size: 16px;
     padding: 14px;
   }
 
-  /* HERO */
   .hero {
     min-height: 620px;
     height: auto;
@@ -1071,7 +1108,6 @@ button:hover, .btn:hover {
     justify-content: center;
   }
 
-  /* STORY */
   .story-inner {
     grid-template-columns: 1fr;
   }
@@ -1080,7 +1116,6 @@ button:hover, .btn:hover {
     order: -1;
   }
 
-  /* PROFILE */
   .simple-profile-header {
     flex-direction: column;
     align-items: flex-start;
@@ -1099,7 +1134,6 @@ button:hover, .btn:hover {
     grid-template-columns: 1fr;
   }
 
-  /* TESTIMONIALS - swipe only here */
   .testimonials {
     overflow: hidden;
   }
@@ -1162,7 +1196,6 @@ button:hover, .btn:hover {
     align-items: flex-start;
   }
 
-  /* TEAM - no swipe, one card per line */
   .team-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -1179,5 +1212,9 @@ button:hover, .btn:hover {
   .team-card img {
     width: 90px;
     height: 90px;
+  }
+
+  #register-form {
+    gap: 12px;
   }
 }

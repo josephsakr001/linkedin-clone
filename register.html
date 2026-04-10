@@ -21,69 +21,70 @@
   </nav>
 
   <main class="container">
-    <h1>Create Your CV</h1>
+    <h1>Create Your Caregiver Profile</h1>
 
     <form id="register-form">
       <input type="text" id="name" placeholder="Full Name" required />
-<select id="headline" required>
-  <option value="">Select your role</option>
-  <option>Web Developer</option>
-  <option>Frontend Developer</option>
-  <option>Backend Developer</option>
-  <option>Full Stack Developer</option>
-  <option>UI/UX Designer</option>
-  <option>Graphic Designer</option>
-  <option>Data Analyst</option>
-  <option>Accountant</option>
-  <option>Sales</option>
-  <option>Marketing</option>
-  <option>HR</option>
-  <option>Customer Support</option>
-  <option>Project Manager</option>
-  <option>Engineer</option>
-  <option>Teacher</option>
-</select>
 
-<div class="field">
-  <select id="skill-select">
-    <option value="">Select a skill</option>
-    <option value="JavaScript">JavaScript</option>
-    <option value="HTML">HTML</option>
-    <option value="CSS">CSS</option>
-    <option value="React">React</option>
-    <option value="Node.js">Node.js</option>
-    <option value="UI/UX">UI/UX</option>
-    <option value="Marketing">Marketing</option>
-  </select>
-
-  <input type="text" id="skills" placeholder="Selected skills" readonly required />
-</div>
-
-  <div id="selected-skills" class="selected-skills"></div>
-
-  <input type="hidden" id="skills" required />
-</div>
-   <select id="location" required>
-  <option value="">Select Location</option>
-  <option>Beirut</option>
-  <option>Mount Lebanon</option>
-  <option>North Lebanon</option>
-  <option>Akkar</option>
-  <option>Bekaa</option>
-  <option>Baalbek-Hermel</option>
-  <option>South Lebanon</option>
-  <option>Nabatieh</option>
-</select>
+      <select id="headline" required>
+        <option value="">Select your care role</option>
+        <option>Elderly Caregiver</option>
+        <option>Home Caregiver</option>
+        <option>Post-Surgery Caregiver</option>
+        <option>Disability Support Caregiver</option>
+        <option>Child Caregiver</option>
+        <option>Dementia Caregiver</option>
+        <option>Palliative Caregiver</option>
+        <option>Live-In Caregiver</option>
+        <option>Part-Time Caregiver</option>
+        <option>Nursing Assistant</option>
+        <option>Private Nurse</option>
+        <option>Companion Caregiver</option>
+      </select>
 
       <div class="field">
-        <input type="tel" id="phone" placeholder=" phone number : +961 03 123 456" required />
+        <select id="skill-select">
+          <option value="">Select a care skill</option>
+          <option value="Elderly Care">Elderly Care</option>
+          <option value="Home Care">Home Care</option>
+          <option value="Post-Surgery Support">Post-Surgery Support</option>
+          <option value="Disability Support">Disability Support</option>
+          <option value="Child Care">Child Care</option>
+          <option value="Dementia Care">Dementia Care</option>
+          <option value="Palliative Care">Palliative Care</option>
+          <option value="Mobility Assistance">Mobility Assistance</option>
+          <option value="Medication Support">Medication Support</option>
+          <option value="Patient Hygiene">Patient Hygiene</option>
+          <option value="Meal Preparation">Meal Preparation</option>
+          <option value="Companionship">Companionship</option>
+        </select>
+
+        <input type="text" id="skills" placeholder="Selected care skills" readonly required />
+      </div>
+
+      <div id="selected-skills" class="selected-skills"></div>
+
+      <select id="location" required>
+        <option value="">Select Location</option>
+        <option>Beirut</option>
+        <option>Mount Lebanon</option>
+        <option>North Lebanon</option>
+        <option>Akkar</option>
+        <option>Bekaa</option>
+        <option>Baalbek-Hermel</option>
+        <option>South Lebanon</option>
+        <option>Nabatieh</option>
+      </select>
+
+      <div class="field">
+        <input type="tel" id="phone" placeholder="Phone number: +961 03 123 456" required />
       </div>
 
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
 
       <div class="field">
-        <label>price range</label>
+        <label>Expected monthly rate</label>
         <div class="salary-range">
           <input type="number" id="salary-min" placeholder="From" min="0" />
           <span>to</span>
@@ -91,7 +92,7 @@
         </div>
       </div>
 
-      <textarea id="bio" placeholder="Short Bio"></textarea>
+      <textarea id="bio" placeholder="Tell families about your experience, care type, and availability"></textarea>
 
       <div class="field">
         <label for="avatar">Profile Picture</label>
