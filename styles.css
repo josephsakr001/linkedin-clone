@@ -983,79 +983,37 @@ button:hover, .btn:hover {
   .simple-profile-info h1 { font-size: 24px; }
   .profile-details-grid { grid-template-columns: 1fr; }
 }
-
 @media (max-width: 600px) {
-  body { overflow-x: hidden; }
 
-  .navbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    padding: 12px 14px;
-  }
-
-  .brand {
-    font-size: 18px;
-    align-self: flex-start;
-    white-space: nowrap;
-  }
-
-  .nav-links {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    width: 100%;
-  }
-
-  .nav-links a {
-    font-size: 12px;
-    padding: 8px 6px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .container {
-    margin: 20px 12px;
-    padding: 18px;
-  }
-
-  .page { padding: 30px 12px; }
-  .simple-profile { margin: 20px 12px; }
-  .search-row { grid-template-columns: 1fr; gap: 10px; }
-  select { font-size: 16px; padding: 14px; }
-
-  .testimonials-grid,
-  .team-grid {
+  /* ✅ TESTIMONIALS (KEEP SWIPE) */
+  .testimonials-grid {
     display: flex;
     overflow-x: auto;
-    gap: 14px;
-    padding-bottom: 10px;
+    gap: 12px;
+    padding: 10px;
+
     scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .testimonials-grid::-webkit-scrollbar,
-  .team-grid::-webkit-scrollbar {
+  .testimonials-grid::-webkit-scrollbar {
     display: none;
   }
 
-  .testimonial-card,
-  .team-card {
-    min-width: 260px;
-    flex: 0 0 auto;
-    scroll-snap-align: start;
+  .testimonial-card {
+    flex: 0 0 85%;
+    max-width: 85%;
+    scroll-snap-align: center;
   }
 
-  .testimonial-text {
-    font-size: 13px;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  /* ❌ REMOVE SLIDE FROM TEAM */
+  .team-grid {
+    display: grid; /* 🔥 THIS FIX */
+    grid-template-columns: 1fr; /* 🔥 one per line */
+    gap: 16px;
   }
-
-  .team-card img {
-    width: 90px;
-    height: 90px;
-  }
+.team-card {
+  padding: 18px;
+  text-align: center;
+}
 }
