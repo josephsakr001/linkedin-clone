@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Choose a Plan | CareXpert</title>
+  <title>Choose a Plan | CareExpert</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -27,6 +27,13 @@
       <p class="pricing-subtitle">
         Publish your caregiver profile on CareXpert, increase your visibility to families across Lebanon, and get discovered for the type of care work you do best.
       </p>
+
+      <div class="billing-toggle-wrap">
+        <div class="billing-toggle" id="billing-toggle">
+          <button type="button" class="billing-btn active" data-billing="monthly">Monthly</button>
+          <button type="button" class="billing-btn" data-billing="annually">Annually</button>
+        </div>
+      </div>
     </section>
 
     <section class="pricing-grid">
@@ -38,8 +45,8 @@
         </div>
 
         <div class="pricing-price">
-          <span class="price">$3</span>
-          <span class="duration">/ 1 month</span>
+          <span class="price" data-monthly="3" data-annually="30">$3</span>
+          <span class="duration" data-monthly="/ month" data-annually="/ year">/ month</span>
         </div>
 
         <ul class="pricing-features">
@@ -61,8 +68,8 @@
         </div>
 
         <div class="pricing-price">
-          <span class="price">$10</span>
-          <span class="duration">/ 4 months</span>
+          <span class="price" data-monthly="10" data-annually="100">$10</span>
+          <span class="duration" data-monthly="/ month" data-annually="/ year">/ month</span>
         </div>
 
         <ul class="pricing-features">
@@ -82,8 +89,8 @@
         </div>
 
         <div class="pricing-price">
-          <span class="price">$25</span>
-          <span class="duration">/ 1 year</span>
+          <span class="price" data-monthly="25" data-annually="250">$25</span>
+          <span class="duration" data-monthly="/ month" data-annually="/ year">/ month</span>
         </div>
 
         <ul class="pricing-features">
@@ -108,5 +115,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="./supabaseClient.js"></script>
   <script src="./app.js"></script>
+
+  
+
 </body>
 </html>

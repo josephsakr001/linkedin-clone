@@ -761,6 +761,27 @@ if (loginForm) {
   });
 }
 
+ const billingButtons = document.querySelectorAll(".billing-btn");
+    const prices = document.querySelectorAll(".price");
+    const durations = document.querySelectorAll(".duration");
+
+    billingButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        billingButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const mode = btn.dataset.billing;
+
+        prices.forEach((price) => {
+          price.textContent = "$" + price.dataset[mode];
+        });
+
+        durations.forEach((duration) => {
+          duration.textContent = duration.dataset[mode];
+        });
+      });
+    });
+
 /* =========================
    Init
 ========================= */
