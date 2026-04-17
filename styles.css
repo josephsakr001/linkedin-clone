@@ -436,7 +436,7 @@ button:hover, .btn:hover {
 /* TEAM */
 .team-section {
   padding: 80px 20px;
-  background: #0f1720;
+  background-color: rgb(196, 114, 74);
 }
 
 .team-container {
