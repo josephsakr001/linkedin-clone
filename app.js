@@ -57,7 +57,9 @@ async function loadReactivateButton() {
       navLinks.appendChild(reactivateLink);
     }
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
+    const {
+      data: { user }
+    } = await supabaseClient.auth.getUser();
 
     if (!user) {
       reactivateLink.style.display = "none";
@@ -100,6 +102,8 @@ if (registerForm) {
     const headline = document.getElementById("headline").value.trim();
     const skills = document.getElementById("skills").value.trim();
     const location = document.getElementById("location").value.trim();
+    const languages = document.getElementById("languages").value.trim();
+    const availability = document.getElementById("availability").value.trim();
     const phone = document.getElementById("phone").value.trim();
     const bio = document.getElementById("bio").value.trim();
     const email = document.getElementById("email").value.trim();
@@ -116,6 +120,8 @@ if (registerForm) {
         headline,
         skills,
         location,
+        languages,
+        availability,
         phone,
         bio,
         email,
@@ -160,7 +166,9 @@ if (pricingButtons.length > 0) {
       const savedAvatar = localStorage.getItem("pendingAvatar");
 
       try {
-        const { data: { user: currentUser } } = await supabaseClient.auth.getUser();
+        const {
+          data: { user: currentUser }
+        } = await supabaseClient.auth.getUser();
 
         /* -------------------------
            CASE 1: Reactivation
@@ -213,6 +221,8 @@ if (pricingButtons.length > 0) {
           headline,
           skills,
           location,
+          languages,
+          availability,
           phone,
           bio,
           email,
@@ -270,6 +280,8 @@ if (pricingButtons.length > 0) {
           headline,
           skills,
           location,
+          languages,
+          availability,
           phone,
           bio,
           salary_min: salaryMin || null,
@@ -501,6 +513,16 @@ if (profileContainer) {
             </div>
 
             <div class="detail-box">
+              <span class="detail-label">Languages</span>
+              <strong>${data.languages || "Not provided"}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span class="detail-label">Availability</span>
+              <strong>${data.availability || "Not provided"}</strong>
+            </div>
+
+            <div class="detail-box">
               <span class="detail-label">Phone</span>
               <strong>${data.phone || "Not provided"}</strong>
             </div>
@@ -568,6 +590,8 @@ if (editProfileForm) {
       document.getElementById("edit-headline").value = profile.headline || "";
       document.getElementById("edit-skills").value = profile.skills || "";
       document.getElementById("edit-location").value = profile.location || "";
+      document.getElementById("edit-languages").value = profile.languages || "";
+      document.getElementById("edit-availability").value = profile.availability || "";
       document.getElementById("edit-phone").value = profile.phone || "";
       document.getElementById("edit-bio").value = profile.bio || "";
       document.getElementById("edit-salary-min").value = profile.salary_min || "";
@@ -599,6 +623,8 @@ if (editProfileForm) {
         headline: document.getElementById("edit-headline").value.trim(),
         skills: document.getElementById("edit-skills").value.trim(),
         location: document.getElementById("edit-location").value.trim(),
+        languages: document.getElementById("edit-languages").value.trim(),
+        availability: document.getElementById("edit-availability").value.trim(),
         phone: document.getElementById("edit-phone").value.trim(),
         bio: document.getElementById("edit-bio").value.trim(),
         salary_min: parseInt(document.getElementById("edit-salary-min").value || 0, 10) || null,
@@ -662,7 +688,9 @@ const myProfileLink = document.getElementById("my-profile-link");
 if (myProfileLink) {
   const loadMyProfileLink = async () => {
     try {
-      const { data: { user } } = await supabaseClient.auth.getUser();
+      const {
+        data: { user }
+      } = await supabaseClient.auth.getUser();
 
       if (!user) {
         myProfileLink.style.display = "none";
@@ -761,26 +789,31 @@ if (loginForm) {
   });
 }
 
- const billingButtons = document.querySelectorAll(".billing-btn");
-    const prices = document.querySelectorAll(".price");
-    const durations = document.querySelectorAll(".duration");
+/* =========================
+   Billing Toggle (packages.html)
+========================= */
+const billingButtons = document.querySelectorAll(".billing-btn");
+const prices = document.querySelectorAll(".price");
+const durations = document.querySelectorAll(".duration");
 
-    billingButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        billingButtons.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
+if (billingButtons.length > 0) {
+  billingButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      billingButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
 
-        const mode = btn.dataset.billing;
+      const mode = btn.dataset.billing;
 
-        prices.forEach((price) => {
-          price.textContent = "$" + price.dataset[mode];
-        });
+      prices.forEach((price) => {
+        price.textContent = "$" + price.dataset[mode];
+      });
 
-        durations.forEach((duration) => {
-          duration.textContent = duration.dataset[mode];
-        });
+      durations.forEach((duration) => {
+        duration.textContent = duration.dataset[mode];
       });
     });
+  });
+}
 
 /* =========================
    Init

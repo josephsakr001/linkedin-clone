@@ -239,7 +239,7 @@ button:hover, .btn:hover {
 .featured-inner h2, .team-section h2 {
   font-size: 24px;
   margin-bottom: 18px;
-  color: var(--text);
+  color: #c4724a;
 }
 
 .featured-grid, .results-grid {
@@ -436,7 +436,7 @@ button:hover, .btn:hover {
 /* TEAM */
 .team-section {
   padding: 80px 20px;
-  background-color: rgb(196, 114, 74);
+  background-color: rgba(54, 45, 40, 0.096);
 }
 
 .team-container {
