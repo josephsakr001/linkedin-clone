@@ -234,18 +234,24 @@ if (pricingButtons.length > 0) {
         const { data: signUpData, error: signUpError } =
           await supabaseClient.auth.signUp({ email, password });
 
-        if (signUpError && !signUpError.message.toLowerCase().includes("already")) {
+        if (signUpError) {
+          const message = (signUpError.message || "").toLowerCase();
+
+          if (message.includes("already") || message.includes("exists") || message.includes("registered")) {
+            alert("This email is already registered. Please log in first or use another email.");
+            window.location.href = "./login.html";
+            return;
+          }
+
           throw signUpError;
         }
 
-        let userId = signUpData?.user?.id;
+        const userId = signUpData?.user?.id;
 
         if (!userId) {
-          const { data: signInData, error: signInError } =
-            await supabaseClient.auth.signInWithPassword({ email, password });
-
-          if (signInError) throw signInError;
-          userId = signInData.user.id;
+          alert("Account created, but login is not ready yet. Please log in manually.");
+          window.location.href = "./login.html";
+          return;
         }
 
         const DEFAULT_AVATAR =
@@ -337,14 +343,80 @@ if (pricingButtons.length > 0) {
 
 /* =========================
    Search (search.html)
-   Show only active + not expired profiles
+   Care Type -> Service Option -> Location
 ========================= */
 const resultsDiv = document.getElementById("results");
 
 if (resultsDiv) {
-  const keywordEl = document.getElementById("search-keyword");
+  const careTypeEl = document.getElementById("search-role");
+  const serviceOptionEl = document.getElementById("search-service-option");
   const locationEl = document.getElementById("search-location");
-  const roleEl = document.getElementById("search-role");
+
+  const serviceOptionsMap = {
+    "Child Care": [
+      "Babysitting",
+      "Newborn Care",
+      "Child Supervision",
+      "School Pick-Up",
+      "Special Needs Child Care"
+    ],
+    "Elder Care": [
+      "Live-In Care",
+      "Companionship",
+      "Mobility Assistance",
+      "Medication Support",
+      "Personal Hygiene Support"
+    ],
+    "Home Nursing Care": [
+      "Private Nurse",
+      "Post-Surgery Care",
+      "Wound Care",
+      "Injection Support",
+      "Medical Monitoring"
+    ],
+    "Pregnancy & Maternity Care": [
+      "Postpartum Care",
+      "Mother Support",
+      "New Mother Assistance",
+      "Infant Feeding Support"
+    ],
+    "Therapy & Rehab": [
+      "Physiotherapy Support",
+      "Speech Therapy Support",
+      "Occupational Therapy Support",
+      "Rehabilitation Assistance"
+    ],
+    "Nutrition & Diet": [
+      "Meal Planning",
+      "Diet Monitoring",
+      "Special Diet Support"
+    ],
+    "Disability & Special Needs Care": [
+      "Daily Assistance",
+      "Mobility Support",
+      "Special Needs Support",
+      "Personal Care Assistance"
+    ],
+    "Mental Health & Emotional Support Care": [
+      "Companionship",
+      "Emotional Support",
+      "Daily Check-In Support",
+      "Routine Assistance"
+    ]
+  };
+
+  const renderServiceOptions = () => {
+    if (!serviceOptionEl) return;
+
+    const selectedCareType = careTypeEl?.value || "";
+    const options = serviceOptionsMap[selectedCareType] || [];
+
+    serviceOptionEl.innerHTML = `<option value="">All Service Options</option>`;
+
+    options.forEach((option) => {
+      serviceOptionEl.innerHTML += `<option value="${option}">${option}</option>`;
+    });
+  };
 
   const renderProfiles = (profiles) => {
     if (!profiles || profiles.length === 0) {
@@ -382,20 +454,12 @@ if (resultsDiv) {
       .order("plan_rank", { ascending: false })
       .order("created_at", { ascending: false });
 
-    const keyword = keywordEl?.value.trim();
+    const careType = careTypeEl?.value.trim();
+    const serviceOption = serviceOptionEl?.value.trim();
     const location = locationEl?.value.trim();
-    const role = roleEl?.value.trim();
-
-    if (keyword) {
-      query = query.ilike("name", `%${keyword}%`);
-    }
 
     if (location) {
       query = query.ilike("location", `%${location}%`);
-    }
-
-    if (role) {
-      query = query.or(`headline.ilike.%${role}%,skills.ilike.%${role}%`);
     }
 
     const { data, error } = await query;
@@ -406,14 +470,39 @@ if (resultsDiv) {
       return;
     }
 
-    renderProfiles(data);
+    let filteredData = data || [];
+
+    if (careType) {
+      filteredData = filteredData.filter((profile) => {
+        const headline = profile.headline || "";
+        return headline.toLowerCase().includes(careType.toLowerCase());
+      });
+    }
+
+    if (serviceOption) {
+      filteredData = filteredData.filter((profile) => {
+        const skills = profile.skills || "";
+        const headline = profile.headline || "";
+        return (
+          skills.toLowerCase().includes(serviceOption.toLowerCase()) ||
+          headline.toLowerCase().includes(serviceOption.toLowerCase())
+        );
+      });
+    }
+
+    renderProfiles(filteredData);
   };
 
+  renderServiceOptions();
   loadProfiles();
 
-  keywordEl?.addEventListener("input", loadProfiles);
-  locationEl?.addEventListener("input", loadProfiles);
-  roleEl?.addEventListener("change", loadProfiles);
+  careTypeEl?.addEventListener("change", () => {
+    renderServiceOptions();
+    loadProfiles();
+  });
+
+  serviceOptionEl?.addEventListener("change", loadProfiles);
+  locationEl?.addEventListener("change", loadProfiles);
 }
 
 /* =========================

@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edit Profile</title>
+  <title>Edit Profile | CareXpert</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <nav class="navbar">
-    <div class="logo">CareExpert</div>
+    <div class="logo">CareXpert</div>
     <div class="nav-links">
       <a href="./index.html">Home</a>
       <a href="./register.html">Register</a>
@@ -26,6 +26,16 @@
       <input type="text" id="edit-headline" placeholder="Headline" />
       <input type="text" id="edit-skills" placeholder="Skills (comma separated)" />
       <input type="text" id="edit-location" placeholder="Location" />
+
+      <input type="text" id="edit-languages" placeholder="Languages spoken" />
+
+      <select id="edit-availability">
+        <option value="">Select Availability</option>
+        <option value="Full Time">Full Time</option>
+        <option value="Part Time">Part Time</option>
+        <option value="Flexible">Flexible</option>
+      </select>
+
       <input type="text" id="edit-phone" placeholder="Phone" />
       <textarea id="edit-bio" rows="5" placeholder="Bio"></textarea>
       <input type="number" id="edit-salary-min" placeholder="Minimum Salary" />
@@ -34,15 +44,6 @@
       <button type="submit">Save Changes</button>
     </form>
   </main>
-
-  <input type="text" id="edit-languages" placeholder="Languages spoken" />
-
-<select id="edit-availability">
-  <option value="">Select Availability</option>
-  <option value="Full Time">Full Time</option>
-  <option value="Part Time">Part Time</option>
-  <option value="Flexible">Flexible</option>
-</select>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="./supabaseClient.js"></script>
