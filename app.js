@@ -39,7 +39,6 @@ function isProfileExpired(profile) {
 
 /* =========================
    Reactivate Button
-   Auto add/remove in navbar
 ========================= */
 async function loadReactivateButton() {
   try {
@@ -90,7 +89,6 @@ async function loadReactivateButton() {
 
 /* =========================
    Register (register.html)
-   Save CV data first, then open packages
 ========================= */
 const registerForm = document.getElementById("register-form");
 
@@ -154,7 +152,6 @@ if (registerForm) {
 
 /* =========================
    Packages (packages.html)
-   New user OR reactivate old user
 ========================= */
 const pricingButtons = document.querySelectorAll(".pricing-btn");
 
@@ -170,10 +167,6 @@ if (pricingButtons.length > 0) {
           data: { user: currentUser }
         } = await supabaseClient.auth.getUser();
 
-        /* -------------------------
-           CASE 1: Reactivation
-           Logged in user + no pending registration
-        ------------------------- */
         if (currentUser && !savedData) {
           const userId = currentUser.id;
 
@@ -207,9 +200,6 @@ if (pricingButtons.length > 0) {
           return;
         }
 
-        /* -------------------------
-           CASE 2: New registration
-        ------------------------- */
         if (!savedData) {
           alert("Please complete your Profile first.");
           window.location.href = "./register.html";
@@ -237,7 +227,11 @@ if (pricingButtons.length > 0) {
         if (signUpError) {
           const message = (signUpError.message || "").toLowerCase();
 
-          if (message.includes("already") || message.includes("exists") || message.includes("registered")) {
+          if (
+            message.includes("already") ||
+            message.includes("exists") ||
+            message.includes("registered")
+          ) {
             alert("This email is already registered. Please log in first or use another email.");
             window.location.href = "./login.html";
             return;
@@ -343,7 +337,6 @@ if (pricingButtons.length > 0) {
 
 /* =========================
    Search (search.html)
-   Care Type -> Service Option -> Location
 ========================= */
 const resultsDiv = document.getElementById("results");
 
@@ -879,27 +872,64 @@ if (loginForm) {
 }
 
 /* =========================
-   Billing Toggle (packages.html)
+   Pricing Toggle (packages.html)
+   Only price + duration + discount note change
 ========================= */
 const billingButtons = document.querySelectorAll(".billing-btn");
-const prices = document.querySelectorAll(".price");
-const durations = document.querySelectorAll(".duration");
 
 if (billingButtons.length > 0) {
+  const prices = {
+    monthly: {
+      starter: "$15.5",
+      builder: "$21.5",
+      expert: "$25"
+    },
+    annually: {
+      starter: "$130",
+      builder: "$180",
+      expert: "$210"
+    }
+  };
+
+  function updatePrices(mode) {
+    const starterPrice = document.getElementById("starter-price");
+    const builderPrice = document.getElementById("builder-price");
+    const expertPrice = document.getElementById("expert-price");
+
+    const starterDuration = document.getElementById("starter-duration");
+    const builderDuration = document.getElementById("builder-duration");
+    const expertDuration = document.getElementById("expert-duration");
+
+    const starterNote = document.getElementById("starter-note");
+    const builderNote = document.getElementById("builder-note");
+    const expertNote = document.getElementById("expert-note");
+
+    if (starterPrice) starterPrice.textContent = prices[mode].starter;
+    if (builderPrice) builderPrice.textContent = prices[mode].builder;
+    if (expertPrice) expertPrice.textContent = prices[mode].expert;
+
+    const durationText = mode === "monthly" ? "/ month" : "/ year";
+
+    if (starterDuration) starterDuration.textContent = durationText;
+    if (builderDuration) builderDuration.textContent = durationText;
+    if (expertDuration) expertDuration.textContent = durationText;
+
+    if (mode === "annually") {
+      if (starterNote) starterNote.textContent = "$186 → $130 • Save 30%";
+      if (builderNote) builderNote.textContent = "$258 → $180 • Save 30%";
+      if (expertNote) expertNote.textContent = "$300 → $210 • Save 30%";
+    } else {
+      if (starterNote) starterNote.textContent = "1st month free";
+      if (builderNote) builderNote.textContent = "";
+      if (expertNote) expertNote.textContent = "";
+    }
+  }
+
   billingButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       billingButtons.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-
-      const mode = btn.dataset.billing;
-
-      prices.forEach((price) => {
-        price.textContent = "$" + price.dataset[mode];
-      });
-
-      durations.forEach((duration) => {
-        duration.textContent = duration.dataset[mode];
-      });
+      updatePrices(btn.dataset.billing);
     });
   });
 }
