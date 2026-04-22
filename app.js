@@ -6,6 +6,72 @@ console.log("APP JS RUNNING");
 const supabaseClient = window.supabaseClient;
 
 /* =========================
+   Shared Service Map
+   Used in search + register
+========================= */
+const serviceOptionsMap = {
+  "Child Care": [
+    "Babysitting Services",
+    "Newborn Care Specialist",
+    "Professional Nanny Services",
+    "After-School Care",
+    "Special Needs child Support"
+  ],
+  "Elder Care": [
+    "Personal Care Assistance",
+    "Dementia & Alzheimer’s Support",
+    "Live-In Caregiving",
+    "Mobility & Transfer Assistance",
+    "Companionship Care",
+    "Palliative & End-of-Life Support"
+  ],
+  "Home Nursing Care": [
+    "Patient Handling & Mobility Support",
+    "Post-Surgical Care",
+    "Wound Care & Infection Control",
+    "Chronic Disease Management",
+    "Medication Administration",
+    "First Aid & CPR Certification",
+    "Vital Signs Monitoring"
+  ],
+  "Pregnancy & Maternity Care": [
+    "Prenatal Care Support",
+    "Postnatal Recovery Care",
+    "Mother & Newborn Care",
+    "Lactation Consulting Support",
+    "Midwifery Assistance"
+  ],
+  "Therapy & Rehab": [
+    "Physiotherapy Assistance",
+    "Occupational Therapy Support",
+    "Mobility Enhancement Techniques",
+    "Rehabilitation Programs Support",
+    "Injury Recovery Assistance"
+  ],
+  "Nutrition & Diet": [
+    "Weight Management Programs",
+    "Clinical Nutrition Planning",
+    "Sports Nutrition Guidancet",
+    "Diabetes Nutrition Management",
+    "Maternal & Prenatal Nutrition"
+  ],
+  "Disability & Special Needs Care": [
+    "Autism Spectrum Support",
+    "Physical Disability Assistance",
+    "Developmental Delay Support",
+    "Behavioral Therapy Assistance",
+    "Daily living  skills  Suppor"
+  ],
+  "Mental Health & Emotional Support Care": [
+    "Emotional Support Care",
+    "Elderly Mental Support",
+    "Depression Support Services",
+    "Anxiety Managment Support Services",
+    "Companionship-Based Emotional Care"
+  ]
+};
+
+/* =========================
    Helpers
 ========================= */
 function getExpiryDate(plan) {
@@ -88,9 +154,80 @@ async function loadReactivateButton() {
 }
 
 /* =========================
-   Register (register.html)
+   Register page
+   Dynamic service options + submit
 ========================= */
+
 const registerForm = document.getElementById("register-form");
+const registerCareTypeEl = document.getElementById("headline");
+const registerSkillSelect = document.getElementById("skill-select");
+const registerSkillsInput = document.getElementById("skills");
+const selectedSkillsContainer = document.getElementById("selected-skills");
+
+if (registerCareTypeEl && registerSkillSelect && registerSkillsInput) {
+  let selectedSkills = [];
+
+  const renderSelectedSkills = () => {
+    registerSkillsInput.value = selectedSkills.join(", ");
+
+    if (!selectedSkillsContainer) return;
+
+    if (selectedSkills.length === 0) {
+      selectedSkillsContainer.innerHTML = "";
+      return;
+    }
+
+    selectedSkillsContainer.innerHTML = selectedSkills
+      .map(
+        (skill) => `
+          <span class="skill-pill">
+            ${skill}
+            <button type="button" class="remove-skill-btn" data-skill="${skill}">&times;</button>
+          </span>
+        `
+      )
+      .join("");
+
+    selectedSkillsContainer.querySelectorAll(".remove-skill-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const skillToRemove = btn.dataset.skill;
+        selectedSkills = selectedSkills.filter((item) => item !== skillToRemove);
+        renderSelectedSkills();
+      });
+    });
+  };
+
+  const renderRegisterServiceOptions = () => {
+    const selectedCareType = registerCareTypeEl.value || "";
+    const options = serviceOptionsMap[selectedCareType] || [];
+
+    registerSkillSelect.innerHTML = `<option value="">Select Service Type</option>`;
+
+    options.forEach((option) => {
+      registerSkillSelect.innerHTML += `<option value="${option}">${option}</option>`;
+    });
+
+    selectedSkills = [];
+    renderSelectedSkills();
+  };
+
+  registerCareTypeEl.addEventListener("change", renderRegisterServiceOptions);
+
+  registerSkillSelect.addEventListener("change", () => {
+    const skill = registerSkillSelect.value;
+
+    if (!skill) return;
+    if (selectedSkills.includes(skill)) {
+      registerSkillSelect.value = "";
+      return;
+    }
+
+    selectedSkills.push(skill);
+    renderSelectedSkills();
+    registerSkillSelect.value = "";
+  });
+}
+
 
 if (registerForm) {
   registerForm.addEventListener("submit", async (e) => {
@@ -344,59 +481,6 @@ if (resultsDiv) {
   const careTypeEl = document.getElementById("search-role");
   const serviceOptionEl = document.getElementById("search-service-option");
   const locationEl = document.getElementById("search-location");
-
-  const serviceOptionsMap = {
-    "Child Care": [
-      "Babysitting",
-      "Newborn Care",
-      "Child Supervision",
-      "School Pick-Up",
-      "Special Needs Child Care"
-    ],
-    "Elder Care": [
-      "Live-In Care",
-      "Companionship",
-      "Mobility Assistance",
-      "Medication Support",
-      "Personal Hygiene Support"
-    ],
-    "Home Nursing Care": [
-      "Private Nurse",
-      "Post-Surgery Care",
-      "Wound Care",
-      "Injection Support",
-      "Medical Monitoring"
-    ],
-    "Pregnancy & Maternity Care": [
-      "Postpartum Care",
-      "Mother Support",
-      "New Mother Assistance",
-      "Infant Feeding Support"
-    ],
-    "Therapy & Rehab": [
-      "Physiotherapy Support",
-      "Speech Therapy Support",
-      "Occupational Therapy Support",
-      "Rehabilitation Assistance"
-    ],
-    "Nutrition & Diet": [
-      "Meal Planning",
-      "Diet Monitoring",
-      "Special Diet Support"
-    ],
-    "Disability & Special Needs Care": [
-      "Daily Assistance",
-      "Mobility Support",
-      "Special Needs Support",
-      "Personal Care Assistance"
-    ],
-    "Mental Health & Emotional Support Care": [
-      "Companionship",
-      "Emotional Support",
-      "Daily Check-In Support",
-      "Routine Assistance"
-    ]
-  };
 
   const renderServiceOptions = () => {
     if (!serviceOptionEl) return;
@@ -739,30 +823,6 @@ if (editProfileForm) {
 }
 
 /* =========================
-   Skill select
-========================= */
-const skillSelect = document.getElementById("skill-select");
-const skillsInput = document.getElementById("skills");
-
-if (skillSelect && skillsInput) {
-  let selectedSkills = [];
-
-  skillSelect.addEventListener("change", () => {
-    const skill = skillSelect.value;
-
-    if (!skill) return;
-    if (selectedSkills.includes(skill)) {
-      skillSelect.value = "";
-      return;
-    }
-
-    selectedSkills.push(skill);
-    skillsInput.value = selectedSkills.join(", ");
-    skillSelect.value = "";
-  });
-}
-
-/* =========================
    My Profile Link
 ========================= */
 const myProfileLink = document.getElementById("my-profile-link");
@@ -873,7 +933,6 @@ if (loginForm) {
 
 /* =========================
    Pricing Toggle (packages.html)
-   Only price + duration + discount note change
 ========================= */
 const billingButtons = document.querySelectorAll(".billing-btn");
 

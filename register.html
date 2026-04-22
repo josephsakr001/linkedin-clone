@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register | CareExpert</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register</title>
+  <link rel="stylesheet" href="./styles.css"/>
 </head>
 <body>
 
   <nav class="navbar">
-    <a class="brand" href="./index.html">CareExpert</a>
-
+    <div class="logo">CareXpert</div>
     <div class="nav-links">
       <a href="./index.html">Home</a>
       <a href="./register.html">Register</a>
@@ -21,107 +20,85 @@
   </nav>
 
   <main class="container">
-    <h1>Create Your Caregiver Profile</h1>
+    <h2>Create Your Profile</h2>
 
     <form id="register-form">
+
+      <!-- Basic Info -->
       <input type="text" id="name" placeholder="Full Name" required />
 
+      <!-- CARE TYPE (same as search) -->
       <select id="headline" required>
-        <option value="">Select your care role</option>
-        <option>Elderly Caregiver</option>
-        <option>Home Caregiver</option>
-        <option>Post-Surgery Caregiver</option>
-        <option>Disability Support Caregiver</option>
-        <option>Child Caregiver</option>
-        <option>Dementia Caregiver</option>
-        <option>Palliative Caregiver</option>
-        <option>Live-In Caregiver</option>
-        <option>Part-Time Caregiver</option>
-        <option>Nursing Assistant</option>
-        <option>Private Nurse</option>
-        <option>Companion Caregiver</option>
+        <option value="">Select Care Type</option>
+        <option value="Child Care">Child Care</option>
+        <option value="Elder Care">Elder Care</option>
+        <option value="Home Nursing Care">Home Nursing Care</option>
+        <option value="Pregnancy & Maternity Care">Pregnancy & Maternity Care</option>
+        <option value="Therapy & Rehab">Therapy & Rehab</option>
+        <option value="Nutrition & Diet">Nutrition & Diet</option>
+        <option value="Disability & Special Needs Care">Disability & Special Needs Care</option>
+        <option value="Mental Health & Emotional Support Care">Mental Health & Emotional Support Care</option>
       </select>
 
+      <!-- SERVICE TYPE (dynamic like search) -->
       <div class="field">
         <select id="skill-select">
-          <option value="">Select your  care services</option>
-          <option value="Elderly Care">Elderly Care</option>
-          <option value="Home Care">Home Care</option>
-          <option value="Post-Surgery Support">Post-Surgery Support</option>
-          <option value="Disability Support">Disability Support</option>
-          <option value="Child Care">Child Care</option>
-          <option value="Dementia Care">Dementia Care</option>
-          <option value="Palliative Care">Palliative Care</option>
-          <option value="Mobility Assistance">Mobility Assistance</option>
-          <option value="Medication Support">Medication Support</option>
-          <option value="Patient Hygiene">Patient Hygiene</option>
-          <option value="Meal Preparation">Meal Preparation</option>
-          <option value="Companionship">Companionship</option>
+          <option value="">Select Service Type</option>
         </select>
 
-        <input type="text" id="skills" placeholder="Selected care skills" readonly required />
+        <input type="text" id="skills" placeholder="Selected services" readonly required />
       </div>
-
-      <div id="selected-skills" class="selected-skills"></div>
-
+<div id="selected-skills" class="selected-skills"></div>
+      <!-- Location -->
       <select id="location" required>
         <option value="">Select Location</option>
         <option>Beirut</option>
         <option>Mount Lebanon</option>
         <option>North Lebanon</option>
-        <option>Akkar</option>
-        <option>Bekaa</option>
-        <option>Baalbek-Hermel</option>
         <option>South Lebanon</option>
-        <option>Nabatieh</option>
+        <option>Bekaa</option>
       </select>
 
-      <div class="field">
-  <input 
-    type="text" 
-    id="languages" 
-    placeholder="Languages spoken (e.g. Arabic, English, French)" 
-    required 
-  />
-</div>
+      <!-- Phone -->
+      <input type="text" id="phone" placeholder="Phone number: +961 XX XXX XXX" required />
 
-<div class="field">
-  <select id="availability" required>
-    <option value="">Select Availability</option>
-    <option value="Full Time">Full Time</option>
-    <option value="Part Time">Part Time</option>
-    <option value="Flexible">Flexible</option>
-  </select>
-</div>
-      <div class="field">
-        <input type="tel" id="phone" placeholder="Phone number: +961 03 123 456" required />
+      <!-- Salary -->
+      <div class="salary-range">
+        <input type="number" id="salary-min" placeholder="Min Salary ($)" />
+        <input type="number" id="salary-max" placeholder="Max Salary ($)" />
       </div>
 
+      <!-- Languages -->
+      <input type="text" id="languages" placeholder="Languages (e.g. Arabic, English)" />
+
+      <!-- Availability -->
+      <select id="availability">
+        <option value="">Select Availability</option>
+        <option value="Full Time">Full Time</option>
+        <option value="Part Time">Part Time</option>
+        <option value="Flexible">Flexible</option>
+      </select>
+
+      <!-- Bio -->
+      <textarea id="bio" rows="4" placeholder="Short Bio"></textarea>
+
+      <!-- Avatar -->
+      <input type="file" id="avatar" accept="image/*" />
+
+      <!-- Auth -->
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
 
-      <div class="field">
-        <label>Expected monthly rate</label>
-        <div class="salary-range">
-          <input type="number" id="salary-min" placeholder="From" min="0" />
-          <span>to</span>
-          <input type="number" id="salary-max" placeholder="To" min="0" />
-        </div>
-      </div>
-    <h5>Bio</h5>
-      <textarea id="bio" placeholder="Tell families about your experience, care type, and availability"></textarea>
+      <!-- Submit -->
+      <button type="submit">Continue</button>
 
-      <div class="field">
-        <label for="avatar">Profile Picture</label>
-        <input type="file" id="avatar" accept="image/*" />
-      </div>
-
-      <button type="submit">Continue to Packages</button>
     </form>
   </main>
 
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="./supabaseClient.js"></script>
   <script src="./app.js"></script>
+
 </body>
 </html>
