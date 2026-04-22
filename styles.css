@@ -27,8 +27,7 @@ html { scroll-behavior: smooth; }
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  background: linear-gradient(to right, #f8f5f0, #eef4f1);
-  color: var(--text);
+ background-color: #EAF6F2; 
 }
 
 img { max-width: 100%; display: block; }
@@ -121,7 +120,7 @@ select {
 button, .btn {
   display: inline-block;
   padding: 10px 16px;
-  background: var(--primary);
+  background: #2d5c4f;
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -171,9 +170,7 @@ button:hover, .btn:hover {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(135deg, rgba(45, 92, 79, 0.75), rgba(28, 58, 48, 0.82)),
-    radial-gradient(circle at top right, rgba(232, 168, 130, 0.16), transparent 35%);
+ 
   z-index: 2;
 }
 
@@ -318,7 +315,7 @@ button:hover, .btn:hover {
 
 /* STORY */
 .story {
-  background: #fff;
+  background: #eaf6f2;
 }
 
 .story-inner {
@@ -436,7 +433,7 @@ button:hover, .btn:hover {
 /* TEAM */
 .team-section {
   padding: 80px 20px;
-  background-color: rgba(54, 45, 40, 0.096);
+  background-color: #eaf6f2
 }
 
 .team-container {
@@ -458,7 +455,17 @@ button:hover, .btn:hover {
 }
 
 .team-card-new {
-  background: #1c2530;
+  background: #2d5c4f;
+  border-radius: 20px;
+  padding: 24px;
+  color: #d1d5db;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+
+.team-card-new {
+  background: #C4724A;
   border-radius: 20px;
   padding: 24px;
   color: #d1d5db;
@@ -1056,7 +1063,7 @@ body {
 /* ===== SERVICES SECTION ===== */
 .services-section {
   padding: 80px 20px;
-  background: #fff;
+  background: #f8f5f0;
 }
 
 .services-container {

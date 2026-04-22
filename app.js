@@ -211,7 +211,7 @@ if (pricingButtons.length > 0) {
            CASE 2: New registration
         ------------------------- */
         if (!savedData) {
-          alert("Please complete your CV first.");
+          alert("Please complete your Profile first.");
           window.location.href = "./register.html";
           return;
         }
