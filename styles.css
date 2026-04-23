@@ -27,7 +27,7 @@ html { scroll-behavior: smooth; }
 body {
   font-family: Arial, sans-serif;
   margin: 0;
- background-color: #EAF6F2; 
+  background-color: #EAF6F2; 
 }
 
 img { max-width: 100%; display: block; }
@@ -163,14 +163,13 @@ button:hover, .btn:hover {
   object-fit: cover;
   object-position: center center;
   z-index: 1;
-  opacity: 0.28;
+ 
 }
 
 .hero::after {
   content: "";
   position: absolute;
   inset: 0;
- 
   z-index: 2;
 }
 
@@ -430,10 +429,9 @@ button:hover, .btn:hover {
   color: var(--muted);
 }
 
-/* TEAM */
 .team-section {
   padding: 80px 20px;
-  background-color: #eaf6f2
+  background-color: #eaf6f2;
 }
 
 .team-container {
@@ -450,21 +448,15 @@ button:hover, .btn:hover {
 
 .team-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
+  align-items: stretch;
 }
 
 .team-card-new {
-  background: #2d5c4f;
-  border-radius: 20px;
-  padding: 24px;
-  color: #d1d5db;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255,255,255,0.06);
-}
-
-
-.team-card-new {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background: #3d7a68;
   border-radius: 20px;
   padding: 24px;
@@ -544,13 +536,29 @@ button:hover, .btn:hover {
   flex-wrap: wrap;
   gap: 10px;
   font-size: 12px;
-  color: #9ca3af;
 }
 
-.team-contact-row span {
+.team-contact-row span,
+.team-contact-row a {
   background: rgba(255,255,255,0.05);
   padding: 8px 10px;
   border-radius: 999px;
+}
+
+.contact-pill {
+  display: inline-block;
+  font-size: 12px;
+}
+
+.linkedin-pill {
+  text-decoration: none;
+  color: #ffffff;
+  transition: 0.2s ease;
+}
+
+.linkedin-pill:hover {
+  background: #ffffff;
+  color: #2d5c4f;
 }
 
 /* SEARCH */
@@ -1067,7 +1075,7 @@ body {
 }
 
 .services-container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -1088,31 +1096,38 @@ body {
   border-radius: 20px;
 }
 
-
 .services-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 18px;
 }
 
 .service-card {
   position: relative;
   overflow: hidden;
-  height: 220px;
+  height: 250px;
   background: #ddd;
-  border-radius: 12px;
+  border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.10);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.14);
 }
 
 .service-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
-  transition: transform 0.3s ease;
+  transition: transform 0.35s ease;
 }
 
 .service-card:hover img {
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 
 .service-overlay {
@@ -1120,13 +1135,25 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  padding: 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.18));
   color: white;
-  text-align: center;
-  padding: 10px 12px;
+  text-align: left;
 }
 
+.service-overlay h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
 
+.service-overlay p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.92);
+}
 
 .billing-toggle-wrap {
   display: flex;
@@ -1172,7 +1199,6 @@ body {
   color: #fff;
 }
 
-
 .selected-skills {
   display: flex;
   flex-wrap: wrap;
@@ -1207,22 +1233,89 @@ body {
   color: #c4724a;
   transform: none;
 }
+
+.password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrap input {
+  padding-right: 70px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 14px;
+  top: 38%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #2d5c4f;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggle-password:hover {
+  background: transparent;
+  color: #c4724a;
+  transform: translateY(-50%);
+}
+
 /* RESPONSIVE */
+@media (max-width: 1100px) {
+  .services-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .service-card {
+    height: 235px;
+  }
+}
+
 @media (max-width: 1000px) {
   .team-cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .team-card-new {
+    padding: 20px;
   }
 }
 
 @media (max-width: 900px) {
-  .story-inner { grid-template-columns: 1fr; }
-  .story-image { order: -1; }
-  .search-row { grid-template-columns: 1fr; }
-  .featured-plan { transform: none; }
-  .featured-plan:hover { transform: translateY(-8px); }
+  .story-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .team-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .story-image {
+    order: -1;
+  }
+
+  .search-row {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-plan {
+    transform: none;
+  }
+
+  .featured-plan:hover {
+    transform: translateY(-8px);
+  }
 
   .services-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .service-card {
+    height: 220px;
   }
 }
 
@@ -1238,7 +1331,9 @@ body {
     text-align: center;
   }
 
-  .hero-buttons { justify-content: center; }
+  .hero-buttons {
+    justify-content: center;
+  }
 
   .testimonials-cta {
     flex-direction: column;
@@ -1255,8 +1350,13 @@ body {
     height: 84px;
   }
 
-  .simple-profile-info h1 { font-size: 24px; }
-  .profile-details-grid { grid-template-columns: 1fr; }
+  .simple-profile-info h1 {
+    font-size: 24px;
+  }
+
+  .profile-details-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1449,41 +1549,27 @@ body {
   }
 
   .services-section {
-    padding: 60px 14px;
-  }
-
-  .services-title {
-    font-size: 28px;
-    letter-spacing: 2px;
-  }
-
-  .services-tabs {
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-
-  .service-tab {
-    font-size: 14px;
+    padding: 50px 14px;
   }
 
   .services-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 
   .service-card {
-    height: 200px;
+    height: 170px;
   }
 
   .service-overlay h3 {
-    font-size: 18px;
+    font-size: 14px;
   }
 
   .service-overlay p {
-    font-size: 12px;
+    font-size: 11px;
   }
+}
 
-  #register-form {
-    gap: 12px;
-  }
+#register-form {
+  gap: 12px;
 }

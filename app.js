@@ -992,6 +992,21 @@ if (billingButtons.length > 0) {
     });
   });
 }
+/* =========================
+   Password Toggle (register.html)
+========================= */
+const registerPasswordInput = document.getElementById("password");
+const togglePasswordBtn = document.getElementById("toggle-password");
+
+if (registerPasswordInput && togglePasswordBtn) {
+  togglePasswordBtn.addEventListener("click", () => {
+    const isPassword = registerPasswordInput.type === "password";
+
+    registerPasswordInput.type = isPassword ? "text" : "password";
+    togglePasswordBtn.textContent = isPassword ? "Hide" : "Show";
+  });
+}
+
 
 /* =========================
    Init
