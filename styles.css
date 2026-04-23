@@ -30,6 +30,11 @@ body {
   background-color: #EAF6F2; 
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
 input, textarea, button, select { font: inherit; }
@@ -1573,3 +1578,4 @@ body {
 #register-form {
   gap: 12px;
 }
+
