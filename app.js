@@ -1,21 +1,28 @@
 console.log("APP JS RUNNING");
 
-/* =========================
-   Supabase Client
-========================= */
 const supabaseClient = window.supabaseClient;
 
 /* =========================
-   Shared Service Map
-   Used in search + register
+   SERVICE OPTIONS
 ========================= */
+
+const defaultServiceOptions = [
+  "Professional Communication with Families",
+  "Time & Task Management",
+  "Empathy & Emotional Intelligence",
+  "Conflict Resolution Skills",
+  "Respect for Privacy & Dignity",
+  "Emergency Responsiveness & Adaptability",
+  "Multilingual Communication Skills"
+];
+
 const serviceOptionsMap = {
   "Child Care": [
     "Babysitting Services",
     "Newborn Care Specialist",
     "Professional Nanny Services",
     "After-School Care",
-    "Special Needs child Support"
+    "Special Needs Child Support"
   ],
   "Elder Care": [
     "Personal Care Assistance",
@@ -51,7 +58,7 @@ const serviceOptionsMap = {
   "Nutrition & Diet": [
     "Weight Management Programs",
     "Clinical Nutrition Planning",
-    "Sports Nutrition Guidancet",
+    "Sports Nutrition Guidance",
     "Diabetes Nutrition Management",
     "Maternal & Prenatal Nutrition"
   ],
@@ -60,30 +67,27 @@ const serviceOptionsMap = {
     "Physical Disability Assistance",
     "Developmental Delay Support",
     "Behavioral Therapy Assistance",
-    "Daily living  skills  Suppor"
+    "Daily Living Skills Support"
   ],
   "Mental Health & Emotional Support Care": [
     "Emotional Support Care",
     "Elderly Mental Support",
     "Depression Support Services",
-    "Anxiety Managment Support Services",
+    "Anxiety Management Support Services",
     "Companionship-Based Emotional Care"
   ]
 };
 
 /* =========================
-   Helpers
+   HELPERS
 ========================= */
+
 function getExpiryDate(plan) {
   const now = new Date();
 
-  if (plan === "starter") {
-    now.setMonth(now.getMonth() + 1);
-  } else if (plan === "professional") {
-    now.setMonth(now.getMonth() + 4);
-  } else if (plan === "premium") {
-    now.setFullYear(now.getFullYear() + 1);
-  }
+  if (plan === "starter") now.setMonth(now.getMonth() + 1);
+  else if (plan === "professional") now.setMonth(now.getMonth() + 4);
+  else if (plan === "premium") now.setFullYear(now.getFullYear() + 1);
 
   return now.toISOString();
 }
@@ -96,16 +100,19 @@ function getPlanRank(plan) {
 
 function isProfileExpired(profile) {
   if (!profile) return true;
-
-  const now = new Date();
   const expiresAt = new Date(profile.expires_at);
+  return profile.is_active === false || expiresAt <= new Date();
+}
 
-  return profile.is_active === false || expiresAt <= now;
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
 }
 
 /* =========================
-   Reactivate Button
+   REACTIVATE LINK
 ========================= */
+
 async function loadReactivateButton() {
   try {
     const navLinks = document.querySelector(".nav-links");
@@ -122,9 +129,7 @@ async function loadReactivateButton() {
       navLinks.appendChild(reactivateLink);
     }
 
-    const {
-      data: { user }
-    } = await supabaseClient.auth.getUser();
+    const { data: { user } } = await supabaseClient.auth.getUser();
 
     if (!user) {
       reactivateLink.style.display = "none";
@@ -142,20 +147,17 @@ async function loadReactivateButton() {
       return;
     }
 
-    if (isProfileExpired(profile)) {
-      reactivateLink.style.display = "inline-block";
-      reactivateLink.href = "./packages.html";
-    } else {
-      reactivateLink.style.display = "none";
-    }
+    reactivateLink.style.display = isProfileExpired(profile)
+      ? "inline-block"
+      : "none";
+
   } catch (err) {
     console.error("Reactivate button error:", err);
   }
 }
 
 /* =========================
-   Register page
-   Dynamic service options + submit
+   REGISTER
 ========================= */
 
 const registerForm = document.getElementById("register-form");
@@ -172,26 +174,18 @@ if (registerCareTypeEl && registerSkillSelect && registerSkillsInput) {
 
     if (!selectedSkillsContainer) return;
 
-    if (selectedSkills.length === 0) {
-      selectedSkillsContainer.innerHTML = "";
-      return;
-    }
-
     selectedSkillsContainer.innerHTML = selectedSkills
-      .map(
-        (skill) => `
-          <span class="skill-pill">
-            ${skill}
-            <button type="button" class="remove-skill-btn" data-skill="${skill}">&times;</button>
-          </span>
-        `
-      )
+      .map(skill => `
+        <span class="skill-pill">
+          ${skill}
+          <button type="button" class="remove-skill-btn" data-skill="${skill}">&times;</button>
+        </span>
+      `)
       .join("");
 
     selectedSkillsContainer.querySelectorAll(".remove-skill-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const skillToRemove = btn.dataset.skill;
-        selectedSkills = selectedSkills.filter((item) => item !== skillToRemove);
+        selectedSkills = selectedSkills.filter(item => item !== btn.dataset.skill);
         renderSelectedSkills();
       });
     });
@@ -199,13 +193,35 @@ if (registerCareTypeEl && registerSkillSelect && registerSkillsInput) {
 
   const renderRegisterServiceOptions = () => {
     const selectedCareType = registerCareTypeEl.value || "";
-    const options = serviceOptionsMap[selectedCareType] || [];
+    const careSkills = serviceOptionsMap[selectedCareType] || [];
 
     registerSkillSelect.innerHTML = `<option value="">Select Service Type</option>`;
 
-    options.forEach((option) => {
-      registerSkillSelect.innerHTML += `<option value="${option}">${option}</option>`;
+    if (careSkills.length > 0) {
+      const careGroup = document.createElement("optgroup");
+      careGroup.label = "Care Type Skills";
+
+      careSkills.forEach(skill => {
+        const opt = document.createElement("option");
+        opt.value = skill;
+        opt.textContent = skill;
+        careGroup.appendChild(opt);
+      });
+
+      registerSkillSelect.appendChild(careGroup);
+    }
+
+    const coreGroup = document.createElement("optgroup");
+    coreGroup.label = "Core Caregiver Competencies";
+
+    defaultServiceOptions.forEach(skill => {
+      const opt = document.createElement("option");
+      opt.value = skill;
+      opt.textContent = skill;
+      coreGroup.appendChild(opt);
     });
+
+    registerSkillSelect.appendChild(coreGroup);
 
     selectedSkills = [];
     renderSelectedSkills();
@@ -215,56 +231,41 @@ if (registerCareTypeEl && registerSkillSelect && registerSkillsInput) {
 
   registerSkillSelect.addEventListener("change", () => {
     const skill = registerSkillSelect.value;
-
     if (!skill) return;
-    if (selectedSkills.includes(skill)) {
-      registerSkillSelect.value = "";
-      return;
+
+    if (!selectedSkills.includes(skill)) {
+      selectedSkills.push(skill);
+      renderSelectedSkills();
     }
 
-    selectedSkills.push(skill);
-    renderSelectedSkills();
     registerSkillSelect.value = "";
   });
-}
 
+  renderRegisterServiceOptions();
+}
 
 if (registerForm) {
   registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const name = document.getElementById("name").value.trim();
-    const headline = document.getElementById("headline").value.trim();
-    const skills = document.getElementById("skills").value.trim();
-    const location = document.getElementById("location").value.trim();
-    const languages = document.getElementById("languages").value.trim();
-    const availability = document.getElementById("availability").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const bio = document.getElementById("bio").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    const salaryMin = parseInt(document.getElementById("salary-min")?.value || 0, 10);
-    const salaryMax = parseInt(document.getElementById("salary-max")?.value || 0, 10);
+    const pendingData = {
+      name: document.getElementById("name").value.trim(),
+      headline: document.getElementById("headline").value.trim(),
+      skills: document.getElementById("skills").value.trim(),
+      location: document.getElementById("location").value.trim(),
+      languages: document.getElementById("languages").value.trim(),
+      availability: document.getElementById("availability").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      bio: document.getElementById("bio").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("password").value,
+      salaryMin: parseInt(document.getElementById("salary-min")?.value || 0, 10),
+      salaryMax: parseInt(document.getElementById("salary-max")?.value || 0, 10)
+    };
 
     const avatarFile = document.getElementById("avatar")?.files?.[0] || null;
 
     try {
-      const pendingData = {
-        name,
-        headline,
-        skills,
-        location,
-        languages,
-        availability,
-        phone,
-        bio,
-        email,
-        password,
-        salaryMin,
-        salaryMax
-      };
-
       localStorage.setItem("pendingRegistration", JSON.stringify(pendingData));
 
       if (avatarFile) {
@@ -288,8 +289,9 @@ if (registerForm) {
 }
 
 /* =========================
-   Packages (packages.html)
+   PACKAGES
 ========================= */
+
 const pricingButtons = document.querySelectorAll(".pricing-btn");
 
 if (pricingButtons.length > 0) {
@@ -300,10 +302,9 @@ if (pricingButtons.length > 0) {
       const savedAvatar = localStorage.getItem("pendingAvatar");
 
       try {
-        const {
-          data: { user: currentUser }
-        } = await supabaseClient.auth.getUser();
+        const { data: { user: currentUser } } = await supabaseClient.auth.getUser();
 
+        /* REACTIVATION FLOW */
         if (currentUser && !savedData) {
           const userId = currentUser.id;
 
@@ -311,13 +312,21 @@ if (pricingButtons.length > 0) {
             .from("profiles")
             .select("*")
             .eq("user_id", userId)
-            .single();
+            .maybeSingle();
 
           if (existingProfileError || !existingProfile) {
             throw new Error("Profile not found for reactivation.");
           }
 
-          const { error: updateError } = await supabaseClient
+          if (!isProfileExpired(existingProfile)) {
+            alert("Your profile is already active ✅");
+            window.location.href = "./profile.html?id=" + existingProfile.id;
+            return;
+          }
+
+          const newExpiryDate = getExpiryDate(selectedPlan);
+
+          const { data: updatedProfile, error: updateError } = await supabaseClient
             .from("profiles")
             .update({
               plan: selectedPlan,
@@ -325,18 +334,35 @@ if (pricingButtons.length > 0) {
               payment_status: "paid",
               is_active: true,
               starts_at: new Date().toISOString(),
-              expires_at: getExpiryDate(selectedPlan),
+              expires_at: newExpiryDate,
               reminder_sent: false
             })
-            .eq("user_id", userId);
+            .eq("id", existingProfile.id)
+            .select("*")
+            .single();
 
-          if (updateError) throw updateError;
+          if (updateError) {
+            console.error(updateError);
+            throw new Error("Reactivation failed");
+          }
 
-          alert(`Plan reactivated: ${selectedPlan} ✅`);
-          window.location.href = "./profile.html?id=" + existingProfile.id;
+          if (!updatedProfile || !updatedProfile.is_active) {
+            throw new Error("Profile still inactive");
+          }
+
+          if (new Date(updatedProfile.expires_at) <= new Date()) {
+            throw new Error("Expiry not updated");
+          }
+
+          const reactivateLink = document.getElementById("reactivate-link");
+          if (reactivateLink) reactivateLink.style.display = "none";
+
+          alert("Plan reactivated successfully ✅");
+          window.location.href = "./profile.html?id=" + updatedProfile.id;
           return;
         }
 
+        /* NEW REGISTRATION FLOW */
         if (!savedData) {
           alert("Please complete your Profile first.");
           window.location.href = "./register.html";
@@ -369,7 +395,7 @@ if (pricingButtons.length > 0) {
             message.includes("exists") ||
             message.includes("registered")
           ) {
-            alert("This email is already registered. Please log in first or use another email.");
+            alert("This email is already registered. Please log in first.");
             window.location.href = "./login.html";
             return;
           }
@@ -380,13 +406,13 @@ if (pricingButtons.length > 0) {
         const userId = signUpData?.user?.id;
 
         if (!userId) {
-          alert("Account created, but login is not ready yet. Please log in manually.");
+          alert("Account created. Please log in manually.");
           window.location.href = "./login.html";
           return;
         }
 
         const DEFAULT_AVATAR =
-          "https://ui-avatars.com/api/?name=CareXpert+User&background=0A66C2&color=ffffff&size=200&bold=true";
+          "https://ui-avatars.com/api/?name=CareExpert+User&background=0A66C2&color=ffffff&size=200&bold=true";
 
         let avatarUrl = DEFAULT_AVATAR;
 
@@ -424,7 +450,7 @@ if (pricingButtons.length > 0) {
           salary_min: salaryMin || null,
           salary_max: salaryMax || null,
           avatar_url: avatarUrl,
-          email: email,
+          email,
           plan: selectedPlan,
           plan_rank: getPlanRank(selectedPlan),
           payment_status: "paid",
@@ -446,7 +472,7 @@ if (pricingButtons.length > 0) {
           const { error } = await supabaseClient
             .from("profiles")
             .update(profileData)
-            .eq("user_id", userId);
+            .eq("id", existingProfile.id);
 
           profileError = error;
         } else {
@@ -464,6 +490,7 @@ if (pricingButtons.length > 0) {
 
         alert(`Package selected: ${selectedPlan} ✅`);
         window.location.href = "./search.html";
+
       } catch (err) {
         console.error(err);
         alert("Error: " + err.message);
@@ -473,8 +500,114 @@ if (pricingButtons.length > 0) {
 }
 
 /* =========================
-   Search (search.html)
+   PRICING TOGGLE
 ========================= */
+
+const billingButtons = document.querySelectorAll(".billing-btn");
+
+if (billingButtons.length > 0) {
+  let currentBilling = "monthly";
+  let isReactivation = false;
+
+  const prices = {
+    monthly: {
+      starter: {
+        newPrice: "$0",
+        reactivePrice: "$15.5",
+        durationNew: "/ first month",
+        durationReactive: "/ month",
+        newNote: "First month free",
+        reactiveNote: "Monthly reactivation"
+      },
+      builder: {
+        price: "$21.5",
+        duration: "/ month",
+        note: "Best monthly value"
+      },
+      expert: {
+        price: "$25",
+        duration: "/ month",
+        note: "Maximum visibility"
+      }
+    },
+    annually: {
+      starter: {
+        price: "$130",
+        duration: "/ year",
+        note: "Was $186 → Now $130 • Save $56"
+      },
+      builder: {
+        price: "$180",
+        duration: "/ year",
+        note: "Was $258 → Now $180 • Save $78"
+      },
+      expert: {
+        price: "$210",
+        duration: "/ year",
+        note: "Was $300 → Now $210 • Save $90"
+      }
+    }
+  };
+
+  function updatePrices(mode) {
+    currentBilling = mode;
+
+    if (mode === "monthly") {
+      setText("starter-price", isReactivation ? prices.monthly.starter.reactivePrice : prices.monthly.starter.newPrice);
+      setText("starter-duration", isReactivation ? prices.monthly.starter.durationReactive : prices.monthly.starter.durationNew);
+      setText("starter-note", isReactivation ? prices.monthly.starter.reactiveNote : prices.monthly.starter.newNote);
+
+      setText("builder-price", prices.monthly.builder.price);
+      setText("builder-duration", prices.monthly.builder.duration);
+      setText("builder-note", prices.monthly.builder.note);
+
+      setText("expert-price", prices.monthly.expert.price);
+      setText("expert-duration", prices.monthly.expert.duration);
+      setText("expert-note", prices.monthly.expert.note);
+    }
+
+    if (mode === "annually") {
+      setText("starter-price", prices.annually.starter.price);
+      setText("starter-duration", prices.annually.starter.duration);
+      setText("starter-note", prices.annually.starter.note);
+
+      setText("builder-price", prices.annually.builder.price);
+      setText("builder-duration", prices.annually.builder.duration);
+      setText("builder-note", prices.annually.builder.note);
+
+      setText("expert-price", prices.annually.expert.price);
+      setText("expert-duration", prices.annually.expert.duration);
+      setText("expert-note", prices.annually.expert.note);
+    }
+  }
+
+  async function checkReactivation() {
+    try {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      const savedData = JSON.parse(localStorage.getItem("pendingRegistration") || "null");
+
+      isReactivation = !!user && !savedData;
+      updatePrices(currentBilling);
+    } catch (err) {
+      console.error("Pricing check error:", err);
+      updatePrices(currentBilling);
+    }
+  }
+
+  billingButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      billingButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      updatePrices(btn.dataset.billing);
+    });
+  });
+
+  checkReactivation();
+}
+/* =========================
+   SEARCH
+========================= */
+
 const resultsDiv = document.getElementById("results");
 
 if (resultsDiv) {
@@ -486,7 +619,10 @@ if (resultsDiv) {
     if (!serviceOptionEl) return;
 
     const selectedCareType = careTypeEl?.value || "";
-    const options = serviceOptionsMap[selectedCareType] || [];
+    const options = [
+      ...(serviceOptionsMap[selectedCareType] || []),
+      ...defaultServiceOptions
+    ];
 
     serviceOptionEl.innerHTML = `<option value="">All Service Options</option>`;
 
@@ -513,10 +649,7 @@ if (resultsDiv) {
               <p>${p.headline || ""}</p>
             </div>
           </div>
-
-          <div class="result-meta">
-            ${p.location || ""}
-          </div>
+          <div class="result-meta">${p.location || ""}</div>
         </a>
       `;
     }).join("");
@@ -531,8 +664,6 @@ if (resultsDiv) {
       .order("plan_rank", { ascending: false })
       .order("created_at", { ascending: false });
 
-    const careType = careTypeEl?.value.trim();
-    const serviceOption = serviceOptionEl?.value.trim();
     const location = locationEl?.value.trim();
 
     if (location) {
@@ -547,24 +678,23 @@ if (resultsDiv) {
       return;
     }
 
+    const careType = careTypeEl?.value.trim().toLowerCase();
+    const serviceOption = serviceOptionEl?.value.trim().toLowerCase();
+
     let filteredData = data || [];
 
+    // Care Type must match headline
     if (careType) {
-      filteredData = filteredData.filter((profile) => {
-        const headline = profile.headline || "";
-        return headline.toLowerCase().includes(careType.toLowerCase());
-      });
+      filteredData = filteredData.filter((profile) =>
+        (profile.headline || "").toLowerCase() === careType
+      );
     }
 
+    // Service Type must exist inside skills
     if (serviceOption) {
-      filteredData = filteredData.filter((profile) => {
-        const skills = profile.skills || "";
-        const headline = profile.headline || "";
-        return (
-          skills.toLowerCase().includes(serviceOption.toLowerCase()) ||
-          headline.toLowerCase().includes(serviceOption.toLowerCase())
-        );
-      });
+      filteredData = filteredData.filter((profile) =>
+        (profile.skills || "").toLowerCase().includes(serviceOption)
+      );
     }
 
     renderProfiles(filteredData);
@@ -575,6 +705,10 @@ if (resultsDiv) {
 
   careTypeEl?.addEventListener("change", () => {
     renderServiceOptions();
+
+    // reset service when care type changes
+    if (serviceOptionEl) serviceOptionEl.value = "";
+
     loadProfiles();
   });
 
@@ -583,8 +717,9 @@ if (resultsDiv) {
 }
 
 /* =========================
-   Profile Page (profile.html)
+   PROFILE
 ========================= */
+
 const profileContainer = document.getElementById("profile-container");
 
 if (profileContainer) {
@@ -644,9 +779,9 @@ if (profileContainer) {
 
     const skillsList = (data.skills || "")
       .split(",")
-      .map((skill) => skill.trim())
+      .map(skill => skill.trim())
       .filter(Boolean)
-      .map((skill) => `<span class="skill-tag">${skill}</span>`)
+      .map(skill => `<span class="skill-tag">${skill}</span>`)
       .join("");
 
     const badge = data.plan
@@ -677,22 +812,18 @@ if (profileContainer) {
               <span class="detail-label">Location</span>
               <strong>${data.location || "Not provided"}</strong>
             </div>
-
             <div class="detail-box">
               <span class="detail-label">Languages</span>
               <strong>${data.languages || "Not provided"}</strong>
             </div>
-
             <div class="detail-box">
               <span class="detail-label">Availability</span>
               <strong>${data.availability || "Not provided"}</strong>
             </div>
-
             <div class="detail-box">
               <span class="detail-label">Phone</span>
               <strong>${data.phone || "Not provided"}</strong>
             </div>
-
             <div class="detail-box">
               <span class="detail-label">Salary</span>
               <strong>${salary}</strong>
@@ -719,8 +850,9 @@ if (profileContainer) {
 }
 
 /* =========================
-   Edit Profile Page (edit-profile.html)
+   EDIT PROFILE
 ========================= */
+
 const editProfileForm = document.getElementById("edit-profile-form");
 
 if (editProfileForm) {
@@ -823,16 +955,15 @@ if (editProfileForm) {
 }
 
 /* =========================
-   My Profile Link
+   MY PROFILE LINK
 ========================= */
+
 const myProfileLink = document.getElementById("my-profile-link");
 
 if (myProfileLink) {
   const loadMyProfileLink = async () => {
     try {
-      const {
-        data: { user }
-      } = await supabaseClient.auth.getUser();
+      const { data: { user } } = await supabaseClient.auth.getUser();
 
       if (!user) {
         myProfileLink.style.display = "none";
@@ -847,11 +978,10 @@ if (myProfileLink) {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (profile) {
-        myProfileLink.href = `./profile.html?id=${profile.id}`;
-      } else {
-        myProfileLink.href = "./register.html";
-      }
+      myProfileLink.href = profile
+        ? `./profile.html?id=${profile.id}`
+        : "./register.html";
+
     } catch (err) {
       console.error("My Profile error:", err);
     }
@@ -861,8 +991,9 @@ if (myProfileLink) {
 }
 
 /* =========================
-   Featured Users (index.html)
+   FEATURED USERS
 ========================= */
+
 const featuredUsersContainer = document.getElementById("featured-users");
 
 if (featuredUsersContainer) {
@@ -882,7 +1013,7 @@ if (featuredUsersContainer) {
       return;
     }
 
-    featuredUsersContainer.innerHTML = data.map((user) => {
+    featuredUsersContainer.innerHTML = (data || []).map((user) => {
       const avatar = user.avatar_url || "https://via.placeholder.com/80?text=User";
 
       return `
@@ -903,8 +1034,9 @@ if (featuredUsersContainer) {
 }
 
 /* =========================
-   Login (login.html)
+   LOGIN
 ========================= */
+
 const loginForm = document.getElementById("login-form");
 
 if (loginForm) {
@@ -924,6 +1056,7 @@ if (loginForm) {
 
       alert("Login successful ✅");
       window.location.href = "./search.html";
+
     } catch (err) {
       console.error(err);
       alert("Error: " + err.message);
@@ -932,83 +1065,22 @@ if (loginForm) {
 }
 
 /* =========================
-   Pricing Toggle (packages.html)
+   PASSWORD TOGGLE
 ========================= */
-const billingButtons = document.querySelectorAll(".billing-btn");
 
-if (billingButtons.length > 0) {
-  const prices = {
-    monthly: {
-      starter: "$15.5",
-      builder: "$21.5",
-      expert: "$25"
-    },
-    annually: {
-      starter: "$130",
-      builder: "$180",
-      expert: "$210"
-    }
-  };
-
-  function updatePrices(mode) {
-    const starterPrice = document.getElementById("starter-price");
-    const builderPrice = document.getElementById("builder-price");
-    const expertPrice = document.getElementById("expert-price");
-
-    const starterDuration = document.getElementById("starter-duration");
-    const builderDuration = document.getElementById("builder-duration");
-    const expertDuration = document.getElementById("expert-duration");
-
-    const starterNote = document.getElementById("starter-note");
-    const builderNote = document.getElementById("builder-note");
-    const expertNote = document.getElementById("expert-note");
-
-    if (starterPrice) starterPrice.textContent = prices[mode].starter;
-    if (builderPrice) builderPrice.textContent = prices[mode].builder;
-    if (expertPrice) expertPrice.textContent = prices[mode].expert;
-
-    const durationText = mode === "monthly" ? "/ month" : "/ year";
-
-    if (starterDuration) starterDuration.textContent = durationText;
-    if (builderDuration) builderDuration.textContent = durationText;
-    if (expertDuration) expertDuration.textContent = durationText;
-
-    if (mode === "annually") {
-      if (starterNote) starterNote.textContent = "$186 → $130 • Save 30%";
-      if (builderNote) builderNote.textContent = "$258 → $180 • Save 30%";
-      if (expertNote) expertNote.textContent = "$300 → $210 • Save 30%";
-    } else {
-      if (starterNote) starterNote.textContent = "1st month free";
-      if (builderNote) builderNote.textContent = "";
-      if (expertNote) expertNote.textContent = "";
-    }
-  }
-
-  billingButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      billingButtons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      updatePrices(btn.dataset.billing);
-    });
-  });
-}
-/* =========================
-   Password Toggle (register.html)
-========================= */
 const registerPasswordInput = document.getElementById("password");
 const togglePasswordBtn = document.getElementById("toggle-password");
 
 if (registerPasswordInput && togglePasswordBtn) {
   togglePasswordBtn.addEventListener("click", () => {
     const isPassword = registerPasswordInput.type === "password";
-
     registerPasswordInput.type = isPassword ? "text" : "password";
     togglePasswordBtn.textContent = isPassword ? "Hide" : "Show";
   });
 }
 
-
 /* =========================
-   Init
+   START
 ========================= */
+
 loadReactivateButton();

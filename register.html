@@ -9,7 +9,7 @@
 <body>
 
   <nav class="navbar">
-    <div class="logo">CareXpert</div>
+    <div class="logo">CareExpert</div>
     <div class="nav-links">
       <a href="./index.html">Home</a>
       <a href="./register.html">Register</a>
@@ -24,10 +24,9 @@
 
     <form id="register-form">
 
-      <!-- Basic Info -->
       <input type="text" id="name" placeholder="Full Name" required />
 
-      <!-- CARE TYPE (same as search) -->
+      
       <select id="headline" required>
         <option value="">Select Care Type</option>
         <option value="Child Care">Child Care</option>
@@ -72,13 +71,27 @@
       <input type="text" id="languages" placeholder="Languages (e.g. Arabic, English)" />
 
       <!-- Availability -->
-      <select id="availability">
-        <option value="">Select Availability</option>
-        <option value="Full Time">Full Time</option>
-        <option value="Part Time">Part Time</option>
-        <option value="Flexible">Flexible</option>
-      </select>
+   <select id="availability">
+  <option value="">Select Availability</option>
 
+  <optgroup label="Daily Availability">
+    <option value="Morning (AM)">Morning (AM)</option>
+    <option value="Afternoon (PM)">Afternoon (PM)</option>
+    <option value="Full Day">Full Day</option>
+  </optgroup>
+
+  <optgroup label="Work Type">
+    <option value="Full Time">Full Time</option>
+    <option value="Part Time">Part Time</option>
+    <option value="Flexible">Flexible</option>
+  </optgroup>
+
+  <optgroup label="Special">
+    <option value="Night Shift">Night Shift</option>
+    <option value="Weekend Only">Weekend Only</option>
+    <option value="On Call">On Call</option>
+  </optgroup>
+</select>
       <!-- Bio -->
       <textarea id="bio" rows="4" placeholder="Short Bio"></textarea>
 
