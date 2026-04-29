@@ -611,6 +611,58 @@ button:hover, .btn:hover {
   color: var(--text);
 }
 
+.pricing-price {
+  background: linear-gradient(180deg, #f8fbff, #ffffff);
+  border: 1px solid #e5edf8;
+  border-radius: 18px;
+  padding: 18px;
+  margin: 22px 0 12px;
+  text-align: center;
+}
+
+.pricing-price .price {
+  font-size: 46px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -1.5px;
+}
+
+.pricing-price .duration {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.plan-note {
+  display: inline-block;
+  background: #eef6ff;
+  color: #0a66c2;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 18px;
+}
+
+.starter-plan .plan-note {
+  background: #ecfdf5;
+  color: #16a34a;
+}
+
+.featured-plan .pricing-price {
+  border-color: #0a66c2;
+  box-shadow: 0 12px 30px rgba(10, 102, 194, 0.15);
+}
+
+.plan-badge {
+  background: #0a66c2;
+  color: white;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .search-header p {
   margin: 0 0 18px;
   color: var(--muted);
