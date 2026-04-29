@@ -1132,7 +1132,14 @@ body {
   grid-template-columns: repeat(4, 1fr);
   gap: 18px;
 }
-
+#search-service-option {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .service-card {
   position: relative;
   overflow: hidden;
