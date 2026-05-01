@@ -1179,6 +1179,69 @@ body {
   border-radius: 20px;
 }
 
+.service-options-box {
+  display: flex;
+  flex-direction: column; /* 👈 makes them under each other */
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  background: #f8fbff;
+  max-height: 180px; /* 👈 scroll if many */
+  overflow-y: auto;
+}
+
+.service-chip {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #334155;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.service-chip.selected {
+  background: #0a66c2;
+  border-color: #0a66c2;
+  color: white;
+}
+
+.done-btn {
+  margin-top: 10px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.selected-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.skill-pill {
+  background: #eaf3ff;
+  color: #0a66c2;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.service-options-box {
+  -webkit-overflow-scrolling: touch; /* smoother scroll on iPhone */
+}
+
+.service-chip {
+  touch-action: manipulation; /* faster tap */
+}
+
+
+
+
 .services-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

@@ -162,11 +162,12 @@ async function loadReactivateButton() {
 
 const registerForm = document.getElementById("register-form");
 const registerCareTypeEl = document.getElementById("headline");
-const registerSkillSelect = document.getElementById("skill-select");
+const serviceOptionsBox = document.getElementById("service-options-box");
 const registerSkillsInput = document.getElementById("skills");
 const selectedSkillsContainer = document.getElementById("selected-skills");
+const confirmSkillsBtn = document.getElementById("confirm-skills-btn");
 
-if (registerCareTypeEl && registerSkillSelect && registerSkillsInput) {
+if (registerCareTypeEl && serviceOptionsBox && registerSkillsInput) {
   let selectedSkills = [];
 
   const renderSelectedSkills = () => {
@@ -186,62 +187,56 @@ if (registerCareTypeEl && registerSkillSelect && registerSkillsInput) {
     selectedSkillsContainer.querySelectorAll(".remove-skill-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         selectedSkills = selectedSkills.filter(item => item !== btn.dataset.skill);
+
+        const chip = serviceOptionsBox.querySelector(`[data-skill="${btn.dataset.skill}"]`);
+        if (chip) chip.classList.remove("selected");
+
         renderSelectedSkills();
       });
     });
   };
 
-  const renderRegisterServiceOptions = () => {
+  const renderServiceChips = () => {
     const selectedCareType = registerCareTypeEl.value || "";
     const careSkills = serviceOptionsMap[selectedCareType] || [];
-
-    registerSkillSelect.innerHTML = `<option value="">Select Service Type</option>`;
-
-    if (careSkills.length > 0) {
-      const careGroup = document.createElement("optgroup");
-      careGroup.label = "Care Type Skills";
-
-      careSkills.forEach(skill => {
-        const opt = document.createElement("option");
-        opt.value = skill;
-        opt.textContent = skill;
-        careGroup.appendChild(opt);
-      });
-
-      registerSkillSelect.appendChild(careGroup);
-    }
-
-    const coreGroup = document.createElement("optgroup");
-    coreGroup.label = "Core Caregiver Competencies";
-
-    defaultServiceOptions.forEach(skill => {
-      const opt = document.createElement("option");
-      opt.value = skill;
-      opt.textContent = skill;
-      coreGroup.appendChild(opt);
-    });
-
-    registerSkillSelect.appendChild(coreGroup);
+    const allSkills = [...careSkills, ...defaultServiceOptions];
 
     selectedSkills = [];
-    renderSelectedSkills();
+    registerSkillsInput.value = "";
+    if (selectedSkillsContainer) selectedSkillsContainer.innerHTML = "";
+
+    serviceOptionsBox.innerHTML = allSkills
+      .map(skill => `
+        <button type="button" class="service-chip" data-skill="${skill}">
+          ${skill}
+        </button>
+      `)
+      .join("");
+
+    serviceOptionsBox.querySelectorAll(".service-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const skill = chip.dataset.skill;
+
+        if (selectedSkills.includes(skill)) {
+          selectedSkills = selectedSkills.filter(item => item !== skill);
+          chip.classList.remove("selected");
+        } else {
+          selectedSkills.push(skill);
+          chip.classList.add("selected");
+        }
+      });
+    });
   };
 
-  registerCareTypeEl.addEventListener("change", renderRegisterServiceOptions);
+  registerCareTypeEl.addEventListener("change", renderServiceChips);
 
-  registerSkillSelect.addEventListener("change", () => {
-    const skill = registerSkillSelect.value;
-    if (!skill) return;
-
-    if (!selectedSkills.includes(skill)) {
-      selectedSkills.push(skill);
+  if (confirmSkillsBtn) {
+    confirmSkillsBtn.addEventListener("click", () => {
       renderSelectedSkills();
-    }
+    });
+  }
 
-    registerSkillSelect.value = "";
-  });
-
-  renderRegisterServiceOptions();
+  renderServiceChips();
 }
 
 if (registerForm) {
@@ -295,200 +290,76 @@ if (registerForm) {
 const pricingButtons = document.querySelectorAll(".pricing-btn");
 
 if (pricingButtons.length > 0) {
-  pricingButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-      const selectedPlan = button.dataset.plan;
-      const savedData = JSON.parse(localStorage.getItem("pendingRegistration") || "null");
-      const savedAvatar = localStorage.getItem("pendingAvatar");
+  pricingButtons.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const plan = btn.dataset.plan;
 
       try {
-        const { data: { user: currentUser } } = await supabaseClient.auth.getUser();
+        const pendingData = JSON.parse(localStorage.getItem("pendingRegistration"));
 
-        /* REACTIVATION FLOW */
-        if (currentUser && !savedData) {
-          const userId = currentUser.id;
-
-          const { data: existingProfile, error: existingProfileError } = await supabaseClient
-            .from("profiles")
-            .select("*")
-            .eq("user_id", userId)
-            .maybeSingle();
-
-          if (existingProfileError || !existingProfile) {
-            throw new Error("Profile not found for reactivation.");
-          }
-
-          if (!isProfileExpired(existingProfile)) {
-            alert("Your profile is already active ✅");
-            window.location.href = "./profile.html?id=" + existingProfile.id;
-            return;
-          }
-
-          const newExpiryDate = getExpiryDate(selectedPlan);
-
-          const { data: updatedProfile, error: updateError } = await supabaseClient
-            .from("profiles")
-            .update({
-              plan: selectedPlan,
-              plan_rank: getPlanRank(selectedPlan),
-              payment_status: "paid",
-              is_active: true,
-              starts_at: new Date().toISOString(),
-              expires_at: newExpiryDate,
-              reminder_sent: false
-            })
-            .eq("id", existingProfile.id)
-            .select("*")
-            .single();
-
-          if (updateError) {
-            console.error(updateError);
-            throw new Error("Reactivation failed");
-          }
-
-          if (!updatedProfile || !updatedProfile.is_active) {
-            throw new Error("Profile still inactive");
-          }
-
-          if (new Date(updatedProfile.expires_at) <= new Date()) {
-            throw new Error("Expiry not updated");
-          }
-
-          const reactivateLink = document.getElementById("reactivate-link");
-          if (reactivateLink) reactivateLink.style.display = "none";
-
-          alert("Plan reactivated successfully ✅");
-          window.location.href = "./profile.html?id=" + updatedProfile.id;
-          return;
-        }
-
-        /* NEW REGISTRATION FLOW */
-        if (!savedData) {
-          alert("Please complete your Profile first.");
+        if (!pendingData) {
+          alert("Please register first.");
           window.location.href = "./register.html";
           return;
         }
 
-        const {
-          name,
-          headline,
-          skills,
-          location,
-          languages,
-          availability,
-          phone,
-          bio,
-          email,
-          password,
-          salaryMin,
-          salaryMax
-        } = savedData;
+        const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
+          email: pendingData.email,
+          password: pendingData.password
+        });
 
-        const { data: signUpData, error: signUpError } =
-          await supabaseClient.auth.signUp({ email, password });
+        if (signUpError) throw signUpError;
 
-        if (signUpError) {
-          const message = (signUpError.message || "").toLowerCase();
+        const userId = signUpData.user.id;
 
-          if (
-            message.includes("already") ||
-            message.includes("exists") ||
-            message.includes("registered")
-          ) {
-            alert("This email is already registered. Please log in first.");
-            window.location.href = "./login.html";
-            return;
-          }
+        let avatarUrl = null;
+        const avatarBase64 = localStorage.getItem("pendingAvatar");
 
-          throw signUpError;
-        }
-
-        const userId = signUpData?.user?.id;
-
-        if (!userId) {
-          alert("Account created. Please log in manually.");
-          window.location.href = "./login.html";
-          return;
-        }
-
-        const DEFAULT_AVATAR =
-          "https://ui-avatars.com/api/?name=CareExpert+User&background=0A66C2&color=ffffff&size=200&bold=true";
-
-        let avatarUrl = DEFAULT_AVATAR;
-
-        if (savedAvatar) {
-          const response = await fetch(savedAvatar);
-          const blob = await response.blob();
-          const fileName = `public/${userId}.jpg`;
+        if (avatarBase64) {
+          const fileName = `avatar-${userId}.png`;
 
           const { error: uploadError } = await supabaseClient.storage
             .from("avatars")
-            .upload(fileName, blob, {
-              upsert: true,
-              contentType: blob.type || "image/jpeg"
-            });
+            .upload(fileName, dataURLtoBlob(avatarBase64));
 
-          if (uploadError) throw uploadError;
-
-          const { data } = supabaseClient.storage
-            .from("avatars")
-            .getPublicUrl(fileName);
-
-          avatarUrl = data.publicUrl;
+          if (!uploadError) {
+            avatarUrl = supabaseClient
+              .storage
+              .from("avatars")
+              .getPublicUrl(fileName).data.publicUrl;
+          }
         }
 
         const profileData = {
           user_id: userId,
-          name,
-          headline,
-          skills,
-          location,
-          languages,
-          availability,
-          phone,
-          bio,
-          salary_min: salaryMin || null,
-          salary_max: salaryMax || null,
+          name: pendingData.name,
+          headline: pendingData.headline,
+          skills: pendingData.skills,
+          location: pendingData.location,
+          languages: pendingData.languages,
+          availability: pendingData.availability,
+          phone: pendingData.phone,
+          bio: pendingData.bio,
+          salary_min: pendingData.salaryMin,
+          salary_max: pendingData.salaryMax,
           avatar_url: avatarUrl,
-          email,
-          plan: selectedPlan,
-          plan_rank: getPlanRank(selectedPlan),
-          payment_status: "paid",
-          is_active: true,
-          starts_at: new Date().toISOString(),
-          expires_at: getExpiryDate(selectedPlan),
-          reminder_sent: false
+          plan: plan,
+          plan_rank: getPlanRank(plan),
+          expires_at: getExpiryDate(plan),
+          is_active: true
         };
 
-        const { data: existingProfile } = await supabaseClient
+        const { error: insertError } = await supabaseClient
           .from("profiles")
-          .select("id")
-          .eq("user_id", userId)
-          .maybeSingle();
+          .insert([profileData]);
 
-        let profileError = null;
-
-        if (existingProfile) {
-          const { error } = await supabaseClient
-            .from("profiles")
-            .update(profileData)
-            .eq("id", existingProfile.id);
-
-          profileError = error;
-        } else {
-          const { error } = await supabaseClient
-            .from("profiles")
-            .insert([profileData]);
-
-          profileError = error;
-        }
-
-        if (profileError) throw profileError;
+        if (insertError) throw insertError;
 
         localStorage.removeItem("pendingRegistration");
         localStorage.removeItem("pendingAvatar");
 
-        alert(`Package selected: ${selectedPlan} ✅`);
+        alert("Profile created successfully ✅");
+
         window.location.href = "./search.html";
 
       } catch (err) {
@@ -499,222 +370,22 @@ if (pricingButtons.length > 0) {
   });
 }
 
-/* =========================
-   PRICING TOGGLE
-========================= */
+/* helper for avatar */
+function dataURLtoBlob(dataURL) {
+  const arr = dataURL.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
 
-const billingButtons = document.querySelectorAll(".billing-btn");
-
-if (billingButtons.length > 0) {
-  let currentBilling = "monthly";
-  let isReactivation = false;
-
-  const prices = {
-    monthly: {
-      starter: {
-        newPrice: "$0",
-        reactivePrice: "$15.5",
-        durationNew: "/ first month",
-        durationReactive: "/ month",
-        newNote: "First month free",
-        reactiveNote: "Monthly reactivation"
-      },
-      builder: {
-        price: "$21.5",
-        duration: "/ month",
-        note: "Best monthly value"
-      },
-      expert: {
-        price: "$25",
-        duration: "/ month",
-        note: "Maximum visibility"
-      }
-    },
-    annually: {
-      starter: {
-        price: "$130",
-        duration: "/ year",
-        note: "Was $186 → Now $130 • Save $56"
-      },
-      builder: {
-        price: "$180",
-        duration: "/ year",
-        note: "Was $258 → Now $180 • Save $78"
-      },
-      expert: {
-        price: "$210",
-        duration: "/ year",
-        note: "Was $300 → Now $210 • Save $90"
-      }
-    }
-  };
-
-  function updatePrices(mode) {
-    currentBilling = mode;
-
-    if (mode === "monthly") {
-      setText("starter-price", isReactivation ? prices.monthly.starter.reactivePrice : prices.monthly.starter.newPrice);
-      setText("starter-duration", isReactivation ? prices.monthly.starter.durationReactive : prices.monthly.starter.durationNew);
-      setText("starter-note", isReactivation ? prices.monthly.starter.reactiveNote : prices.monthly.starter.newNote);
-
-      setText("builder-price", prices.monthly.builder.price);
-      setText("builder-duration", prices.monthly.builder.duration);
-      setText("builder-note", prices.monthly.builder.note);
-
-      setText("expert-price", prices.monthly.expert.price);
-      setText("expert-duration", prices.monthly.expert.duration);
-      setText("expert-note", prices.monthly.expert.note);
-    }
-
-    if (mode === "annually") {
-      setText("starter-price", prices.annually.starter.price);
-      setText("starter-duration", prices.annually.starter.duration);
-      setText("starter-note", prices.annually.starter.note);
-
-      setText("builder-price", prices.annually.builder.price);
-      setText("builder-duration", prices.annually.builder.duration);
-      setText("builder-note", prices.annually.builder.note);
-
-      setText("expert-price", prices.annually.expert.price);
-      setText("expert-duration", prices.annually.expert.duration);
-      setText("expert-note", prices.annually.expert.note);
-    }
+  while(n--) {
+    u8arr[n] = bstr.charCodeAt(n);
   }
 
-  async function checkReactivation() {
-    try {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      const savedData = JSON.parse(localStorage.getItem("pendingRegistration") || "null");
-
-      isReactivation = !!user && !savedData;
-      updatePrices(currentBilling);
-    } catch (err) {
-      console.error("Pricing check error:", err);
-      updatePrices(currentBilling);
-    }
-  }
-
-  billingButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      billingButtons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      updatePrices(btn.dataset.billing);
-    });
-  });
-
-  checkReactivation();
+  return new Blob([u8arr], { type: mime });
 }
-/* =========================
-   SEARCH
-========================= */
 
-const resultsDiv = document.getElementById("results");
 
-if (resultsDiv) {
-  const careTypeEl = document.getElementById("search-role");
-  const serviceOptionEl = document.getElementById("search-service-option");
-  const locationEl = document.getElementById("search-location");
-
-  const renderServiceOptions = () => {
-    if (!serviceOptionEl) return;
-
-    const selectedCareType = careTypeEl?.value || "";
-    const options = [
-      ...(serviceOptionsMap[selectedCareType] || []),
-      ...defaultServiceOptions
-    ];
-
-    serviceOptionEl.innerHTML = `<option value="">All Service Options</option>`;
-
-    options.forEach((option) => {
-      serviceOptionEl.innerHTML += `<option value="${option}">${option}</option>`;
-    });
-  };
-
-  const renderProfiles = (profiles) => {
-    if (!profiles || profiles.length === 0) {
-      resultsDiv.innerHTML = "<p>No profiles found.</p>";
-      return;
-    }
-
-    resultsDiv.innerHTML = profiles.map((p) => {
-      const avatar = p.avatar_url || "https://via.placeholder.com/80?text=User";
-
-      return `
-        <a class="result-card ${p.plan || "starter"}" href="./profile.html?id=${p.id}">
-          <div class="result-top">
-            <img class="result-avatar" src="${avatar}" alt="Avatar" loading="lazy" decoding="async" />
-            <div>
-              <h3>${p.name || ""}</h3>
-              <p>${p.headline || ""}</p>
-            </div>
-          </div>
-          <div class="result-meta">${p.location || ""}</div>
-        </a>
-      `;
-    }).join("");
-  };
-
-  const loadProfiles = async () => {
-    let query = supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("is_active", true)
-      .gt("expires_at", new Date().toISOString())
-      .order("plan_rank", { ascending: false })
-      .order("created_at", { ascending: false });
-
-    const location = locationEl?.value.trim();
-
-    if (location) {
-      query = query.ilike("location", `%${location}%`);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error(error);
-      resultsDiv.innerHTML = "<p>Error loading profiles.</p>";
-      return;
-    }
-
-    const careType = careTypeEl?.value.trim().toLowerCase();
-    const serviceOption = serviceOptionEl?.value.trim().toLowerCase();
-
-    let filteredData = data || [];
-
-    // Care Type must match headline
-    if (careType) {
-      filteredData = filteredData.filter((profile) =>
-        (profile.headline || "").toLowerCase() === careType
-      );
-    }
-
-    // Service Type must exist inside skills
-    if (serviceOption) {
-      filteredData = filteredData.filter((profile) =>
-        (profile.skills || "").toLowerCase().includes(serviceOption)
-      );
-    }
-
-    renderProfiles(filteredData);
-  };
-
-  renderServiceOptions();
-  loadProfiles();
-
-  careTypeEl?.addEventListener("change", () => {
-    renderServiceOptions();
-
-    // reset service when care type changes
-    if (serviceOptionEl) serviceOptionEl.value = "";
-
-    loadProfiles();
-  });
-
-  serviceOptionEl?.addEventListener("change", loadProfiles);
-  locationEl?.addEventListener("change", loadProfiles);
-}
 
 /* =========================
    PROFILE
@@ -1077,6 +748,105 @@ if (registerPasswordInput && togglePasswordBtn) {
     registerPasswordInput.type = isPassword ? "text" : "password";
     togglePasswordBtn.textContent = isPassword ? "Hide" : "Show";
   });
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+const resultsDiv = document.getElementById("results");
+
+if (resultsDiv) {
+  const careTypeEl = document.getElementById("search-role");
+  const serviceOptionEl = document.getElementById("search-service-option");
+  const locationEl = document.getElementById("search-location");
+
+  const renderServiceOptions = () => {
+    if (!serviceOptionEl) return;
+
+    const selectedCareType = careTypeEl?.value || "";
+    const options = serviceOptionsMap[selectedCareType] || [];
+
+    serviceOptionEl.innerHTML = `<option value="">Select Service Type</option>`;
+
+    options.forEach((option) => {
+      serviceOptionEl.innerHTML += `<option value="${option}">${option}</option>`;
+    });
+  };
+
+  const renderProfiles = (profiles) => {
+    if (!profiles || profiles.length === 0) {
+      resultsDiv.innerHTML = "<p>No profiles found.</p>";
+      return;
+    }
+
+    resultsDiv.innerHTML = profiles.map((p) => {
+      const avatar = p.avatar_url || "https://via.placeholder.com/80?text=User";
+
+      return `
+        <a class="result-card ${p.plan || "starter"}" href="./profile.html?id=${p.id}">
+          <div class="result-top">
+            <img class="result-avatar" src="${avatar}" />
+            <div>
+              <h3>${p.name || ""}</h3>
+              <p>${p.headline || ""}</p>
+            </div>
+          </div>
+        </a>
+      `;
+    }).join("");
+  };
+
+  const loadProfiles = async () => {
+    let query = supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("is_active", true)
+      .gt("expires_at", new Date().toISOString());
+
+    const location = locationEl?.value.trim();
+    if (location) {
+      query = query.ilike("location", `%${location}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const careType = careTypeEl?.value.toLowerCase() || "";
+    const serviceOption = serviceOptionEl?.value.toLowerCase() || "";
+
+    let filtered = data || [];
+
+    if (careType) {
+      filtered = filtered.filter(p =>
+        (p.headline || "").toLowerCase().includes(careType)
+      );
+    }
+
+    if (serviceOption) {
+      filtered = filtered.filter(p =>
+        (p.skills || "").toLowerCase().includes(serviceOption)
+      );
+    }
+
+    renderProfiles(filtered);
+  };
+
+  careTypeEl?.addEventListener("change", () => {
+    renderServiceOptions();
+    loadProfiles();
+  });
+
+  serviceOptionEl?.addEventListener("change", loadProfiles);
+  locationEl?.addEventListener("change", loadProfiles);
+
+  renderServiceOptions();
+  loadProfiles();
 }
 
 /* =========================
