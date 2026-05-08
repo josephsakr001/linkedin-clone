@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,124 +9,99 @@
 </head>
 <body>
 
+  <!-- NAVBAR -->
+
   <nav class="navbar">
     <a class="brand" href="./index.html">CareExpert</a>
 
-    <div class="nav-links">
-      <a href="./index.html">Home</a>
-      <a href="./register.html">Register</a>
-      <a href="./login.html">Login</a>
-      <a href="./search.html">Search</a>
-      <a href="#" id="my-profile-link" style="display:none;">My Profile</a>
-    </div>
+```
+<div class="nav-links">
+  <a href="./index.html">Home</a>
+  <a href="./register.html">Register</a>
+  <a href="./login.html">Login</a>
+  <a href="./search.html">Search</a>
+  <a href="#" id="my-profile-link" style="display:none;">My Profile</a>
+</div>
+```
+
   </nav>
+
+  <!-- PAGE -->
 
   <main class="page">
     <div class="page-inner">
-      <div class="search-header">
-        <h1>Find a Caregiver</h1>
-        <p>Browse active caregivers by care type, service option, and location.</p>
+
+```
+  <!-- HEADER -->
+  <div class="search-header">
+    <h1>Find a Caregiver</h1>
+    <p>Browse caregivers by care type, service, and location.</p>
+  </div>
+
+  <!-- SEARCH PANEL -->
+  <div class="search-panel">
+
+    <div class="search-row">
+
+      <!-- CARE TYPE -->
+      <div class="field">
+        <label for="search-role">Care Type</label>
+        <select id="search-role">
+          <option value="">All Care Types</option>
+          <option value="Child Care">Child Care</option>
+          <option value="Elder Care">Elder Care</option>
+          <option value="Home Nursing Care">Home Nursing Care</option>
+          <option value="Pregnancy & Maternity Care">Pregnancy & Maternity Care</option>
+          <option value="Therapy & Rehab">Therapy & Rehab</option>
+          <option value="Nutrition & Diet">Nutrition & Diet</option>
+          <option value="Disability & Special Needs Care">Disability & Special Needs Care</option>
+          <option value="Mental Health & Emotional Support Care">Mental Health & Emotional Support Care</option>
+        </select>
       </div>
 
-      <div class="search-panel">
-        <div class="search-row">
+      <!-- SERVICE TYPE (IMPORTANT: EMPTY) -->
+      <div class="field">
+  <label>Service Type</label>
 
-          <div class="field">
-            <label for="search-role">Care Type</label>
-            <select id="search-role">
-              <option value="">All Care Types</option>
-              <option value="Child Care">Child Care</option>
-              <option value="Elder Care">Elder Care</option>
-              <option value="Home Nursing Care">Home Nursing Care</option>
-              <option value="Pregnancy & Maternity Care">Pregnancy & Maternity Care</option>
-              <option value="Therapy & Rehab">Therapy & Rehab</option>
-              <option value="Nutrition & Diet">Nutrition & Diet</option>
-              <option value="Disability & Special Needs Care">Disability & Special Needs Care</option>
-              <option value="Mental Health & Emotional Support Care">Mental Health & Emotional Support Care</option>
-            </select>
-          </div>
+  <div id="search-service-box" class="service-options-box"></div>
 
-          <div class="field">
-            <label for="search-service-option">Service Type</label>
-            <select id="search-service-option">
-              <option value="Child Care">Babysitting Services</option>
-              <option value="Child Care">Newborn Care Specialist</option>
-              <option value="Child Care">Professional Nanny Services</option>
-              <option value="Child Care">After-School Care</option>
-              <option value="Child Care">Special Needs child  Support</option>
+  <input type="text" id="search-service-option" placeholder="Selected service" readonly />
+</div>
 
-
-              <option value="Elder Care">Personal Care Assistance</option>
-              <option value="Elder Care">Dementia & Alzheimer’s Support</option>
-              <option value="Elder Care">Live-In Caregiving</option>
-              <option value="Elder Care">Mobility & Transfer Assistance</option>
-              <option value="Elder Care">Companionship Care</option>
-              <option value="Elder Care">Palliative & End-of-Life Support</option>
-
-              <option value="Home Nursing Care">Patient Handling & Mobility Support</option>
-              <option value="Home Nursing Care">Post-Surgical Care</option>
-              <option value="Home Nursing Care">Wound Care & Infection Control</option>
-               <option value="Home Nursing Care">Chronic Disease Management</option>
-                <option value="Home Nursing Care">Medication Administration</option>
-                <option value="Home Nursing Care">First Aid & CPR Certification</option>
-                 <option value="Home Nursing Care">Vital Signs Monitoring</option>
-
-                <option value="Pregnancy & Maternity Care">Prenatal Care Support</option>
-                <option value="Pregnancy & Maternity Care">Postnatal Recovery Care</option>
-                <option value="Pregnancy & Maternity Care">Mother & Newborn Care</option>
-                <option value="Pregnancy & Maternity Care">Lactation Consulting Support</option>
-                <option value="Pregnancy & Maternity Care">Midwifery Assistance</option>
-
-                <option value="Therapy & Rehab">Physiotherapy Assistance</option>
-                 <option value="Therapy & Rehab">Occupational Therapy Support</option>
-                 <option value="Therapy & Rehab">Mobility Enhancement Techniques</option>
-                 <option value="Therapy & Rehab">Rehabilitation Programs Support</option>
-                 <option value="Therapy & Rehab">Injury Recovery Assistance</option>
-
-                 <option value="Nutrition & Diet">Weight Management Programs</option>
-                 <option value="Nutrition & Diet">Clinical Nutrition Planning</option>
-                 <option value="Nutrition & Diet">Sports Nutrition Guidancet</option>
-                 <option value="Nutrition & Diet">Diabetes Nutrition Management</option>
-                 <option value="Nutrition & Diet">Maternal & Prenatal Nutrition</option>
-
-                <option value="Disability & Special Needs Care">Autism Spectrum Support</option>
-                <option value="Disability & Special Needs Care">Physical Disability Assistance</option>
-                <option value="Disability & Special Needs Care">Developmental Delay Support</option>    
-                <option value="Disability & Special Needs Care">Behavioral Therapy Assistance</option>
-                <option value="Disability & Special Needs Care">Daily living  skills  Suppor</option>
-
-                <option value="Mental Health & Emotional Support Care">Emotional Support Care</option>
-                <option value="Mental Health & Emotional Support Care">Elderly Mental Support</option>
-                <option value="Mental Health & Emotional Support Care">Depression Support Services</option>
-                 <option value="Mental Health & Emotional Support Care">Anxiety Managment Support Services </option>
-                <option value="Mental Health & Emotional Support Care">Companionship-Based Emotional Care</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="search-location">Location</label>
-            <select id="search-location">
-              <option value="">Select Location</option>
-              <option>Beirut</option>
-              <option>Mount Lebanon</option>
-              <option>North Lebanon</option>
-              <option>Akkar</option>
-              <option>Bekaa</option>
-              <option>Baalbek-Hermel</option>
-              <option>South Lebanon</option>
-              <option>Nabatieh</option>
-            </select>
-          </div>
-
-        </div>
-
-        <div id="results" class="results-grid"></div>
+      <!-- LOCATION -->
+      <div class="field">
+        <label for="search-location">Location</label>
+        <select id="search-location">
+          <option value="">Select Location</option>
+          <option>Beirut</option>
+          <option>Mount Lebanon</option>
+          <option>North Lebanon</option>
+          <option>Akkar</option>
+          <option>Bekaa</option>
+          <option>Baalbek-Hermel</option>
+          <option>South Lebanon</option>
+          <option>Nabatieh</option>
+        </select>
       </div>
+
     </div>
+
+    <!-- RESULTS GRID -->
+    <div id="results" class="results-grid"></div>
+
+  </div>
+</div>
+```
+
   </main>
 
+  <!-- SCRIPTS -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
   <script src="./supabaseClient.js"></script>
+
   <script src="./app.js"></script>
+
 </body>
 </html>

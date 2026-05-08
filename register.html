@@ -9,7 +9,7 @@
 <body>
 
   <nav class="navbar">
-    <div class="logo">CareXpert</div>
+    <div class="logo">CareExpert</div>
     <div class="nav-links">
       <a href="./index.html">Home</a>
       <a href="./register.html">Register</a>
@@ -46,7 +46,7 @@
 
   <button type="button" id="confirm-skills-btn" class="done-btn">Done</button>
 
-  <input type="text" id="skills" placeholder="Selected services" readonly required />
+  <input type="hidden" id="skills" placeholder="Selected services" readonly required />
 </div>
 
 <div id="selected-skills" class="selected-skills"></div>
@@ -69,28 +69,20 @@
       </div>
 
       <input type="text" id="languages" placeholder="Languages (e.g. Arabic, English)" />
+<div class="field">
+  <label>Select Availability</label>
 
-      <select id="availability">
-        <option value="">Select Availability</option>
+  <div id="availability-options-box" class="service-options-box">
+    <button type="button" class="availability-chip service-chip" data-availability="Full Time AM">Full Time AM</button>
+    <button type="button" class="availability-chip service-chip" data-availability="Full Time PM">Full Time PM</button>
+    <button type="button" class="availability-chip service-chip" data-availability="Part Time AM">Part Time AM</button>
+    <button type="button" class="availability-chip service-chip" data-availability="Part Time PM">Part Time PM</button>
+    <button type="button" class="availability-chip service-chip" data-availability="Weekends AM">Weekends AM</button>
+    <button type="button" class="availability-chip service-chip" data-availability="Weekends PM">Weekends PM</button>
+  </div>
 
-        <optgroup label="Daily Availability">
-          <option value="Morning (AM)">Morning (AM)</option>
-          <option value="Afternoon (PM)">Afternoon (PM)</option>
-          <option value="Full Day">Full Day</option>
-        </optgroup>
-
-        <optgroup label="Work Type">
-          <option value="Full Time">Full Time</option>
-          <option value="Part Time">Part Time</option>
-          <option value="Flexible">Flexible</option>
-        </optgroup>
-
-        <optgroup label="Special">
-          <option value="Night Shift">Night Shift</option>
-          <option value="Weekend Only">Weekend Only</option>
-          <option value="On Call">On Call</option>
-        </optgroup>
-      </select>
+  <input type="text" id="availability" placeholder="Selected availability" readonly required />
+</div>
 
       <textarea id="bio" rows="4" placeholder="Short Bio"></textarea>
 

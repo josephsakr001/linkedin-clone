@@ -284,6 +284,107 @@ if (registerForm) {
 }
 
 /* =========================
+   AVAILABILITY (LIKE SKILLS)
+========================= */
+
+const availabilityBox = document.getElementById("availability-options-box");
+const availabilityInput = document.getElementById("availability");
+
+if (availabilityBox && availabilityInput) {
+  let selectedAvailability = "";
+
+  availabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      // remove all selected
+      availabilityBox.querySelectorAll(".availability-chip")
+        .forEach(c => c.classList.remove("selected"));
+
+      // select one
+      chip.classList.add("selected");
+      selectedAvailability = chip.dataset.availability;
+
+      // put value in input
+      availabilityInput.value = selectedAvailability;
+    });
+  });
+}
+
+/* =========================
+   BILLING TOGGLE
+========================= */
+
+const billingButtons = document.querySelectorAll(".billing-btn");
+
+if (billingButtons.length > 0) {
+
+  const pricingData = {
+    monthly: {
+      starter: {
+        price: "$0",
+        duration: "/ first month",
+        note: "Then $15.5 / month"
+      },
+      builder: {
+        price: "$21.5",
+        duration: "/ month",
+        note: "Best monthly value"
+      },
+      expert: {
+        price: "$25",
+        duration: "/ month",
+        note: "Maximum visibility"
+      }
+    },
+
+   annually: {
+  starter: {
+    price: "$130",
+    duration: "/ year",
+    note: 'Save 30% • <s>$186/year</s>'
+  },
+
+  builder: {
+    price: "$194",
+    duration: "/ year",
+    note: 'Save 25% • <s>$258/year</s>'
+  },
+
+  expert: {
+    price: "$240",
+    duration: "/ year",
+    note: 'Save 20% • <s>$300/year</s>'
+  }
+}
+  };
+
+  billingButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+
+      billingButtons.forEach((b) => {
+        b.classList.remove("active");
+      });
+
+      btn.classList.add("active");
+
+      const billingType = btn.dataset.billing;
+      const data = pricingData[billingType];
+
+      setText("starter-price", data.starter.price);
+      setText("starter-duration", data.starter.duration);
+      document.getElementById("starter-note").innerHTML = data.starter.note;
+
+      setText("builder-price", data.builder.price);
+      setText("builder-duration", data.builder.duration);
+      document.getElementById("builder-note").innerHTML = data.builder.note;
+
+      setText("expert-price", data.expert.price);
+      setText("expert-duration", data.expert.duration);
+      document.getElementById("expert-note").innerHTML = data.expert.note;
+    });
+  });
+}
+
+/* =========================
    PACKAGES
 ========================= */
 
@@ -369,6 +470,8 @@ if (pricingButtons.length > 0) {
     });
   });
 }
+
+
 
 /* helper for avatar */
 function dataURLtoBlob(dataURL) {
@@ -750,7 +853,6 @@ if (registerPasswordInput && togglePasswordBtn) {
   });
 }
 
-
 /* =========================
    SEARCH
 ========================= */
@@ -760,18 +862,39 @@ const resultsDiv = document.getElementById("results");
 if (resultsDiv) {
   const careTypeEl = document.getElementById("search-role");
   const serviceOptionEl = document.getElementById("search-service-option");
+  const serviceBox = document.getElementById("search-service-box");
   const locationEl = document.getElementById("search-location");
 
-  const renderServiceOptions = () => {
-    if (!serviceOptionEl) return;
+  const renderServiceChipsSearch = () => {
+    if (!serviceBox || !serviceOptionEl) return;
 
     const selectedCareType = careTypeEl?.value || "";
     const options = serviceOptionsMap[selectedCareType] || [];
 
-    serviceOptionEl.innerHTML = `<option value="">Select Service Type</option>`;
+    serviceOptionEl.value = "";
+    serviceBox.innerHTML = "";
 
-    options.forEach((option) => {
-      serviceOptionEl.innerHTML += `<option value="${option}">${option}</option>`;
+    if (!selectedCareType) {
+      serviceBox.innerHTML = `<p class="small-help">Select care type first</p>`;
+      return;
+    }
+
+    serviceBox.innerHTML = options.map(option => `
+      <button type="button" class="service-chip" data-service="${option}">
+        ${option}
+      </button>
+    `).join("");
+
+    serviceBox.querySelectorAll(".service-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        serviceBox.querySelectorAll(".service-chip")
+          .forEach(c => c.classList.remove("selected"));
+
+        chip.classList.add("selected");
+        serviceOptionEl.value = chip.dataset.service;
+
+        loadProfiles();
+      });
     });
   };
 
@@ -787,12 +910,13 @@ if (resultsDiv) {
       return `
         <a class="result-card ${p.plan || "starter"}" href="./profile.html?id=${p.id}">
           <div class="result-top">
-            <img class="result-avatar" src="${avatar}" />
+            <img class="result-avatar" src="${avatar}" alt="Avatar" />
             <div>
               <h3>${p.name || ""}</h3>
               <p>${p.headline || ""}</p>
             </div>
           </div>
+          <div class="result-meta">${p.location || ""}</div>
         </a>
       `;
     }).join("");
@@ -803,9 +927,12 @@ if (resultsDiv) {
       .from("profiles")
       .select("*")
       .eq("is_active", true)
-      .gt("expires_at", new Date().toISOString());
+      .gt("expires_at", new Date().toISOString())
+      .order("plan_rank", { ascending: false })
+      .order("created_at", { ascending: false });
 
     const location = locationEl?.value.trim();
+
     if (location) {
       query = query.ilike("location", `%${location}%`);
     }
@@ -814,22 +941,23 @@ if (resultsDiv) {
 
     if (error) {
       console.error(error);
+      resultsDiv.innerHTML = "<p>Error loading profiles.</p>";
       return;
     }
 
-    const careType = careTypeEl?.value.toLowerCase() || "";
-    const serviceOption = serviceOptionEl?.value.toLowerCase() || "";
+    const careType = careTypeEl?.value.trim().toLowerCase() || "";
+    const serviceOption = serviceOptionEl?.value.trim().toLowerCase() || "";
 
     let filtered = data || [];
 
     if (careType) {
-      filtered = filtered.filter(p =>
-        (p.headline || "").toLowerCase().includes(careType)
+      filtered = filtered.filter((p) =>
+        (p.headline || "").toLowerCase() === careType
       );
     }
 
     if (serviceOption) {
-      filtered = filtered.filter(p =>
+      filtered = filtered.filter((p) =>
         (p.skills || "").toLowerCase().includes(serviceOption)
       );
     }
@@ -838,14 +966,13 @@ if (resultsDiv) {
   };
 
   careTypeEl?.addEventListener("change", () => {
-    renderServiceOptions();
+    renderServiceChipsSearch();
     loadProfiles();
   });
 
-  serviceOptionEl?.addEventListener("change", loadProfiles);
   locationEl?.addEventListener("change", loadProfiles);
 
-  renderServiceOptions();
+  renderServiceChipsSearch();
   loadProfiles();
 }
 
