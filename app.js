@@ -83,31 +83,75 @@ const serviceOptionsMap = {
    HELPERS
 ========================= */
 
+function normalizePlan(plan) {
+  if (plan === "professional") return "builder";
+  if (plan === "expert") return "premium";
+  if (plan === "premium") return "premium";
+  if (plan === "builder") return "builder";
+  return "starter";
+}
+
+function getPlanLabel(plan) {
+  const normalizedPlan = normalizePlan(plan);
+
+  if (normalizedPlan === "premium") return "Expert";
+  if (normalizedPlan === "builder") return "Builder";
+  return "Explorer";
+}
+
 function getExpiryDate(plan) {
+  const normalizedPlan = normalizePlan(plan);
   const now = new Date();
 
-  if (plan === "starter") now.setMonth(now.getMonth() + 1);
-  else if (plan === "builder") now.setMonth(now.getMonth() + 4);
-  else if (plan === "premium") now.setFullYear(now.getFullYear() + 1);
+  if (normalizedPlan === "starter") {
+    now.setMonth(now.getMonth() + 1);
+  } else if (normalizedPlan === "builder") {
+    now.setMonth(now.getMonth() + 4);
+  } else if (normalizedPlan === "premium") {
+    now.setFullYear(now.getFullYear() + 1);
+  } else {
+    now.setMonth(now.getMonth() + 1);
+  }
 
   return now.toISOString();
 }
 
 function getPlanRank(plan) {
-  if (plan === "premium") return 3;
-  if (plan === "builder") return 2;
+  const normalizedPlan = normalizePlan(plan);
+
+  if (normalizedPlan === "premium") return 3;
+  if (normalizedPlan === "builder") return 2;
   return 1;
 }
 
 function isProfileExpired(profile) {
-  if (!profile) return true;
+  if (!profile) return false;
+  if (!profile.expires_at) return false;
+
   const expiresAt = new Date(profile.expires_at);
+
+  if (Number.isNaN(expiresAt.getTime())) return false;
+
   return profile.is_active === false || expiresAt <= new Date();
 }
 
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
+}
+
+function dataURLtoBlob(dataURL) {
+  const arr = dataURL.split(",");
+  const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return new Blob([u8arr], { type: mime });
 }
 
 /* =========================
@@ -285,23 +329,20 @@ if (registerForm) {
 }
 
 /* =========================
-   AVAILABILITY
+   REGISTER AVAILABILITY
 ========================= */
 
 const availabilityBox = document.getElementById("availability-options-box");
 const availabilityInput = document.getElementById("availability");
 
 if (availabilityBox && availabilityInput) {
-  let selectedAvailability = "";
-
   availabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
       availabilityBox.querySelectorAll(".availability-chip")
         .forEach(c => c.classList.remove("selected"));
 
       chip.classList.add("selected");
-      selectedAvailability = chip.dataset.availability;
-      availabilityInput.value = selectedAvailability;
+      availabilityInput.value = chip.dataset.availability;
     });
   });
 }
@@ -386,7 +427,8 @@ const pricingButtons = document.querySelectorAll(".pricing-btn");
 if (pricingButtons.length > 0) {
   pricingButtons.forEach((btn) => {
     btn.addEventListener("click", async () => {
-      const plan = btn.dataset.plan;
+      const rawPlan = btn.dataset.plan;
+      const plan = normalizePlan(rawPlan);
 
       try {
         const pendingData = JSON.parse(localStorage.getItem("pendingRegistration"));
@@ -404,13 +446,19 @@ if (pricingButtons.length > 0) {
 
         if (signUpError) throw signUpError;
 
-        const userId = signUpData.user.id;
+        const userId = signUpData?.user?.id;
+
+        if (!userId) {
+          alert("Account created. Please verify/login, then continue.");
+          window.location.href = "./login.html";
+          return;
+        }
 
         let avatarUrl = null;
         const avatarBase64 = localStorage.getItem("pendingAvatar");
 
         if (avatarBase64) {
-          const fileName = `avatar-${userId}.png`;
+          const fileName = `avatar-${userId}-${Date.now()}.png`;
 
           const { error: uploadError } = await supabaseClient.storage
             .from("avatars")
@@ -464,21 +512,6 @@ if (pricingButtons.length > 0) {
   });
 }
 
-/* helper for avatar */
-function dataURLtoBlob(dataURL) {
-  const arr = dataURL.split(',');
-  const mime = arr[0].match(/:(.*?);/)[1];
-  const bstr = atob(arr[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
-
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-
-  return new Blob([u8arr], { type: mime });
-}
-
 /* =========================
    PROFILE
 ========================= */
@@ -490,123 +523,134 @@ if (profileContainer) {
   const profileId = params.get("id");
 
   const loadProfile = async () => {
-    if (!profileId) {
-      profileContainer.innerHTML = "<p>No profile id.</p>";
-      return;
-    }
+    try {
+      if (!profileId) {
+        profileContainer.innerHTML = "<p>No profile id.</p>";
+        return;
+      }
 
-    profileContainer.innerHTML = "<p>Loading profile...</p>";
+      profileContainer.innerHTML = "<p>Loading profile...</p>";
 
-    const { data, error } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", profileId)
-      .single();
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", profileId)
+        .maybeSingle();
 
-    if (error || !data) {
-      console.error(error);
-      profileContainer.innerHTML = "<p>Error loading profile.</p>";
-      return;
-    }
+      if (error) {
+        console.error("Profile load error:", error);
+        profileContainer.innerHTML = "<p>Error loading profile.</p>";
+        return;
+      }
 
-    const { data: authData } = await supabaseClient.auth.getUser();
-    const currentUserId = authData?.user?.id || null;
-    const isOwner = currentUserId && currentUserId === data.user_id;
-    const expired = isProfileExpired(data);
+      if (!data) {
+        profileContainer.innerHTML = "<p>Profile not found.</p>";
+        return;
+      }
 
-    if (expired && !isOwner) {
-      profileContainer.innerHTML = "<p>This profile is not available.</p>";
-      return;
-    }
+      const { data: authData } = await supabaseClient.auth.getUser();
+      const currentUserId = authData?.user?.id || null;
+      const isOwner = currentUserId && currentUserId === data.user_id;
+      const expired = isProfileExpired(data);
+      const planClass = normalizePlan(data.plan);
 
-    if (expired && isOwner) {
+      if (expired && !isOwner) {
+        profileContainer.innerHTML = "<p>This profile is not available.</p>";
+        return;
+      }
+
+      if (expired && isOwner) {
+        profileContainer.innerHTML = `
+          <div class="simple-profile ${planClass}">
+            <div class="simple-profile-topbar"></div>
+            <div class="simple-profile-section">
+              <h3>Your plan has expired</h3>
+              <p>Your profile is hidden from the public.</p>
+              <a href="./packages.html" class="edit-profile-btn">Reactivate</a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const avatar = data.avatar_url || DEFAULT_AVATAR;
+
+      const salary =
+        data.salary_min || data.salary_max
+          ? `${data.salary_min || "?"} - ${data.salary_max || "?"} USD`
+          : "Not specified";
+
+      const skillsList = (data.skills || "")
+        .split(",")
+        .map(skill => skill.trim())
+        .filter(Boolean)
+        .map(skill => `<span class="skill-tag">${skill}</span>`)
+        .join("");
+
+      const badge = data.plan
+        ? `<span class="profile-badge ${planClass}">${getPlanLabel(data.plan)}</span>`
+        : "";
+
       profileContainer.innerHTML = `
-        <div class="simple-profile">
+        <div class="simple-profile ${planClass}">
           <div class="simple-profile-topbar"></div>
+
+          <div class="simple-profile-header">
+            <img src="${avatar}" class="simple-profile-avatar" alt="Avatar" />
+
+            <div class="simple-profile-info">
+              <div class="profile-name-row">
+                <h1>${data.name || "No name"}</h1>
+                ${badge}
+              </div>
+              <p class="simple-headline">${data.headline || "No headline yet."}</p>
+              ${isOwner ? `<a href="./edit-profile.html" class="edit-profile-btn">Edit Profile</a>` : ""}
+            </div>
+          </div>
+
           <div class="simple-profile-section">
-            <h3>Your plan has expired</h3>
-            <p>Your profile is hidden from the public.</p>
-            <a href="./packages.html" class="edit-profile-btn">Reactivate</a>
+            <h3>Details</h3>
+            <div class="profile-details-grid">
+              <div class="detail-box">
+                <span class="detail-label">Location</span>
+                <strong>${data.location || "Not provided"}</strong>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">Languages</span>
+                <strong>${data.languages || "Not provided"}</strong>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">Availability</span>
+                <strong>${data.availability || "Not provided"}</strong>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">Phone</span>
+                <strong>${data.phone || "Not provided"}</strong>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">Salary</span>
+                <strong>${salary}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="simple-profile-section">
+            <h3>About</h3>
+            <p>${data.bio || "No bio yet."}</p>
+          </div>
+
+          <div class="simple-profile-section">
+            <h3>Skills</h3>
+            <div class="skills-wrap">
+              ${skillsList || '<span class="no-skills">No skills added yet.</span>'}
+            </div>
           </div>
         </div>
       `;
-      return;
+    } catch (err) {
+      console.error("Profile fatal error:", err);
+      profileContainer.innerHTML = "<p>Error loading profile.</p>";
     }
-
-   const avatar = data.avatar_url || DEFAULT_AVATAR;
-
-    const salary =
-      data.salary_min || data.salary_max
-        ? `${data.salary_min || "?"} - ${data.salary_max || "?"} USD`
-        : "Not specified";
-
-    const skillsList = (data.skills || "")
-      .split(",")
-      .map(skill => skill.trim())
-      .filter(Boolean)
-      .map(skill => `<span class="skill-tag">${skill}</span>`)
-      .join("");
-
-    const badge = data.plan
-      ? `<span class="profile-badge ${data.plan}">${data.plan}</span>`
-      : "";
-
-    profileContainer.innerHTML = `
-      <div class="simple-profile">
-        <div class="simple-profile-topbar"></div>
-
-        <div class="simple-profile-header">
-          <img src="${avatar}" class="simple-profile-avatar" alt="Avatar" />
-
-          <div class="simple-profile-info">
-            <div class="profile-name-row">
-              <h1>${data.name || "No name"}</h1>
-              ${badge}
-            </div>
-            <p class="simple-headline">${data.headline || "No headline yet."}</p>
-            ${isOwner ? `<a href="./edit-profile.html" class="edit-profile-btn">Edit Profile</a>` : ""}
-          </div>
-        </div>
-
-        <div class="simple-profile-section">
-          <h3>Details</h3>
-          <div class="profile-details-grid">
-            <div class="detail-box">
-              <span class="detail-label">Location</span>
-              <strong>${data.location || "Not provided"}</strong>
-            </div>
-            <div class="detail-box">
-              <span class="detail-label">Languages</span>
-              <strong>${data.languages || "Not provided"}</strong>
-            </div>
-            <div class="detail-box">
-              <span class="detail-label">Availability</span>
-              <strong>${data.availability || "Not provided"}</strong>
-            </div>
-            <div class="detail-box">
-              <span class="detail-label">Phone</span>
-              <strong>${data.phone || "Not provided"}</strong>
-            </div>
-            <div class="detail-box">
-              <span class="detail-label">Salary</span>
-              <strong>${salary}</strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="simple-profile-section">
-          <h3>About</h3>
-          <p>${data.bio || "No bio yet."}</p>
-        </div>
-
-        <div class="simple-profile-section">
-          <h3>Skills</h3>
-          <div class="skills-wrap">
-            ${skillsList || '<span class="no-skills">No skills added yet.</span>'}
-          </div>
-        </div>
-      </div>
-    `;
   };
 
   loadProfile();
@@ -627,34 +671,32 @@ if (editProfileForm) {
   const editSkillsInput = document.getElementById("edit-skills");
   const editSelectedSkillsContainer = document.getElementById("edit-selected-skills");
 
-
-
   const editAvailabilityBox = document.getElementById("edit-availability-options-box");
-const editAvailabilityInput = document.getElementById("edit-availability");
+  const editAvailabilityInput = document.getElementById("edit-availability");
 
-const setEditAvailability = (value) => {
-  if (!editAvailabilityBox || !editAvailabilityInput) return;
+  const setEditAvailability = (value) => {
+    if (editAvailabilityInput) editAvailabilityInput.value = value || "";
 
-  editAvailabilityInput.value = value || "";
+    if (editAvailabilityBox) {
+      editAvailabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
+        chip.classList.toggle("selected", chip.dataset.availability === value);
+      });
+    }
+  };
 
-  editAvailabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
-    chip.classList.toggle("selected", chip.dataset.availability === value);
-  });
-};
+  if (editAvailabilityBox && editAvailabilityInput) {
+    editAvailabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const value = chip.dataset.availability;
 
-if (editAvailabilityBox && editAvailabilityInput) {
-  editAvailabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      const value = chip.dataset.availability;
+        editAvailabilityBox.querySelectorAll(".availability-chip")
+          .forEach(c => c.classList.remove("selected"));
 
-      editAvailabilityBox.querySelectorAll(".availability-chip")
-        .forEach(c => c.classList.remove("selected"));
-
-      chip.classList.add("selected");
-      editAvailabilityInput.value = value;
+        chip.classList.add("selected");
+        editAvailabilityInput.value = value;
+      });
     });
-  });
-}
+  }
 
   const renderEditSelectedSkills = () => {
     if (!editSkillsInput) return;
@@ -738,7 +780,7 @@ if (editAvailabilityBox && editAvailabilityInput) {
         .from("profiles")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
       if (profileError || !profile) {
         console.error(profileError);
@@ -752,7 +794,7 @@ if (editAvailabilityBox && editAvailabilityInput) {
       document.getElementById("edit-headline").value = profile.headline || "";
       document.getElementById("edit-location").value = profile.location || "";
       document.getElementById("edit-languages").value = profile.languages || "";
-              setEditAvailability(profile.availability || "");
+      setEditAvailability(profile.availability || "");
       document.getElementById("edit-phone").value = profile.phone || "";
       document.getElementById("edit-bio").value = profile.bio || "";
       document.getElementById("edit-salary-min").value = profile.salary_min || "";
@@ -787,6 +829,24 @@ if (editAvailabilityBox && editAvailabilityInput) {
       }
 
       const userId = authData.user.id;
+      let avatarUrl = null;
+
+      const avatarFile = document.getElementById("edit-avatar")?.files?.[0];
+
+      if (avatarFile) {
+        const fileName = `avatar-${userId}-${Date.now()}.png`;
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from("avatars")
+          .upload(fileName, avatarFile);
+
+        if (!uploadError) {
+          avatarUrl = supabaseClient
+            .storage
+            .from("avatars")
+            .getPublicUrl(fileName).data.publicUrl;
+        }
+      }
 
       const updatedProfile = {
         name: document.getElementById("edit-name").value.trim(),
@@ -800,6 +860,10 @@ if (editAvailabilityBox && editAvailabilityInput) {
         salary_min: parseInt(document.getElementById("edit-salary-min").value || 0, 10) || null,
         salary_max: parseInt(document.getElementById("edit-salary-max").value || 0, 10) || null
       };
+
+      if (avatarUrl) {
+        updatedProfile.avatar_url = avatarUrl;
+      }
 
       const { error: updateError } = await supabaseClient
         .from("profiles")
@@ -842,20 +906,23 @@ if (myProfileLink) {
         return;
       }
 
-      myProfileLink.style.display = "inline-block";
-
       const { data: profile } = await supabaseClient
         .from("profiles")
         .select("id")
         .eq("user_id", user.id)
         .maybeSingle();
 
-      myProfileLink.href = profile
-        ? `./profile.html?id=${profile.id}`
-        : "./register.html";
+      if (!profile) {
+        myProfileLink.style.display = "none";
+        return;
+      }
+
+      myProfileLink.style.display = "inline-block";
+      myProfileLink.href = `./profile.html?id=${profile.id}`;
 
     } catch (err) {
       console.error("My Profile error:", err);
+      myProfileLink.style.display = "none";
     }
   };
 
@@ -886,9 +953,11 @@ if (featuredUsersContainer) {
     }
 
     featuredUsersContainer.innerHTML = (data || []).map((user) => {
-    const avatar = user.avatar_url || DEFAULT_AVATAR;
+      const avatar = user.avatar_url || DEFAULT_AVATAR;
+      const planClass = normalizePlan(user.plan);
+
       return `
-        <a class="user-card ${user.plan || "starter"}" href="./profile.html?id=${user.id}">
+        <a class="user-card ${planClass}" href="./profile.html?id=${user.id}">
           <div class="user-top">
             <img src="${avatar}" alt="Avatar" loading="lazy" decoding="async" />
             <div>
@@ -1011,9 +1080,10 @@ if (resultsDiv) {
 
     resultsDiv.innerHTML = profiles.map((p) => {
       const avatar = p.avatar_url || DEFAULT_AVATAR;
+      const planClass = normalizePlan(p.plan);
 
       return `
-        <a class="result-card ${p.plan || "starter"}" href="./profile.html?id=${p.id}">
+        <a class="result-card ${planClass}" href="./profile.html?id=${p.id}">
           <div class="result-top">
             <img class="result-avatar" src="${avatar}" alt="Avatar" />
             <div>
