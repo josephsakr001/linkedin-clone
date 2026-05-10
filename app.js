@@ -86,7 +86,7 @@ function getExpiryDate(plan) {
   const now = new Date();
 
   if (plan === "starter") now.setMonth(now.getMonth() + 1);
-  else if (plan === "professional") now.setMonth(now.getMonth() + 4);
+  else if (plan === "builder") now.setMonth(now.getMonth() + 4);
   else if (plan === "premium") now.setFullYear(now.getFullYear() + 1);
 
   return now.toISOString();
@@ -94,7 +94,7 @@ function getExpiryDate(plan) {
 
 function getPlanRank(plan) {
   if (plan === "premium") return 3;
-  if (plan === "professional") return 2;
+  if (plan === "builder") return 2;
   return 1;
 }
 
@@ -284,7 +284,7 @@ if (registerForm) {
 }
 
 /* =========================
-   AVAILABILITY (LIKE SKILLS)
+   AVAILABILITY
 ========================= */
 
 const availabilityBox = document.getElementById("availability-options-box");
@@ -295,15 +295,11 @@ if (availabilityBox && availabilityInput) {
 
   availabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
-      // remove all selected
       availabilityBox.querySelectorAll(".availability-chip")
         .forEach(c => c.classList.remove("selected"));
 
-      // select one
       chip.classList.add("selected");
       selectedAvailability = chip.dataset.availability;
-
-      // put value in input
       availabilityInput.value = selectedAvailability;
     });
   });
@@ -316,7 +312,6 @@ if (availabilityBox && availabilityInput) {
 const billingButtons = document.querySelectorAll(".billing-btn");
 
 if (billingButtons.length > 0) {
-
   const pricingData = {
     monthly: {
       starter: {
@@ -336,30 +331,27 @@ if (billingButtons.length > 0) {
       }
     },
 
-   annually: {
-  starter: {
-    price: "$130",
-    duration: "/ year",
-    note: 'Save 30% • <s>$186/year</s>'
-  },
-
-  builder: {
-    price: "$194",
-    duration: "/ year",
-    note: 'Save 25% • <s>$258/year</s>'
-  },
-
-  expert: {
-    price: "$240",
-    duration: "/ year",
-    note: 'Save 20% • <s>$300/year</s>'
-  }
-}
+    annually: {
+      starter: {
+        price: "$130",
+        duration: "/ year",
+        note: 'Save 30% • <s>$186/year</s>'
+      },
+      builder: {
+        price: "$194",
+        duration: "/ year",
+        note: 'Save 25% • <s>$258/year</s>'
+      },
+      expert: {
+        price: "$240",
+        duration: "/ year",
+        note: 'Save 20% • <s>$300/year</s>'
+      }
+    }
   };
 
   billingButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-
       billingButtons.forEach((b) => {
         b.classList.remove("active");
       });
@@ -471,8 +463,6 @@ if (pricingButtons.length > 0) {
   });
 }
 
-
-
 /* helper for avatar */
 function dataURLtoBlob(dataURL) {
   const arr = dataURL.split(',');
@@ -481,14 +471,12 @@ function dataURLtoBlob(dataURL) {
   let n = bstr.length;
   const u8arr = new Uint8Array(n);
 
-  while(n--) {
+  while (n--) {
     u8arr[n] = bstr.charCodeAt(n);
   }
 
   return new Blob([u8arr], { type: mime });
 }
-
-
 
 /* =========================
    PROFILE
@@ -631,6 +619,107 @@ const editProfileForm = document.getElementById("edit-profile-form");
 
 if (editProfileForm) {
   let currentProfileId = null;
+  let editSelectedSkills = [];
+
+  const editCareTypeEl = document.getElementById("edit-headline");
+  const editServiceOptionsBox = document.getElementById("edit-service-options-box");
+  const editSkillsInput = document.getElementById("edit-skills");
+  const editSelectedSkillsContainer = document.getElementById("edit-selected-skills");
+
+
+
+  const editAvailabilityBox = document.getElementById("edit-availability-options-box");
+const editAvailabilityInput = document.getElementById("edit-availability");
+
+const setEditAvailability = (value) => {
+  if (!editAvailabilityBox || !editAvailabilityInput) return;
+
+  editAvailabilityInput.value = value || "";
+
+  editAvailabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
+    chip.classList.toggle("selected", chip.dataset.availability === value);
+  });
+};
+
+if (editAvailabilityBox && editAvailabilityInput) {
+  editAvailabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const value = chip.dataset.availability;
+
+      editAvailabilityBox.querySelectorAll(".availability-chip")
+        .forEach(c => c.classList.remove("selected"));
+
+      chip.classList.add("selected");
+      editAvailabilityInput.value = value;
+    });
+  });
+}
+
+  const renderEditSelectedSkills = () => {
+    if (!editSkillsInput) return;
+
+    editSkillsInput.value = editSelectedSkills.join(", ");
+
+    if (!editSelectedSkillsContainer) return;
+
+    editSelectedSkillsContainer.innerHTML = editSelectedSkills
+      .map(skill => `
+        <span class="skill-pill">
+          ${skill}
+          <button type="button" class="remove-skill-btn" data-skill="${skill}">&times;</button>
+        </span>
+      `)
+      .join("");
+
+    editSelectedSkillsContainer.querySelectorAll(".remove-skill-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        editSelectedSkills = editSelectedSkills.filter(item => item !== btn.dataset.skill);
+
+        const chip = editServiceOptionsBox?.querySelector(`[data-skill="${btn.dataset.skill}"]`);
+        if (chip) chip.classList.remove("selected");
+
+        renderEditSelectedSkills();
+      });
+    });
+  };
+
+  const renderEditServiceChips = () => {
+    if (!editCareTypeEl || !editServiceOptionsBox || !editSkillsInput) return;
+
+    const selectedCareType = editCareTypeEl.value || "";
+    const careSkills = serviceOptionsMap[selectedCareType] || [];
+    const allSkills = [...careSkills, ...defaultServiceOptions];
+
+    editServiceOptionsBox.innerHTML = allSkills
+      .map(skill => `
+        <button type="button" class="service-chip ${editSelectedSkills.includes(skill) ? "selected" : ""}" data-skill="${skill}">
+          ${skill}
+        </button>
+      `)
+      .join("");
+
+    editServiceOptionsBox.querySelectorAll(".service-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const skill = chip.dataset.skill;
+
+        if (editSelectedSkills.includes(skill)) {
+          editSelectedSkills = editSelectedSkills.filter(item => item !== skill);
+          chip.classList.remove("selected");
+        } else {
+          editSelectedSkills.push(skill);
+          chip.classList.add("selected");
+        }
+
+        renderEditSelectedSkills();
+      });
+    });
+  };
+
+  editCareTypeEl?.addEventListener("change", () => {
+    editSelectedSkills = [];
+    renderEditSelectedSkills();
+    renderEditServiceChips();
+  });
 
   const loadEditProfile = async () => {
     try {
@@ -660,14 +749,22 @@ if (editProfileForm) {
 
       document.getElementById("edit-name").value = profile.name || "";
       document.getElementById("edit-headline").value = profile.headline || "";
-      document.getElementById("edit-skills").value = profile.skills || "";
       document.getElementById("edit-location").value = profile.location || "";
       document.getElementById("edit-languages").value = profile.languages || "";
-      document.getElementById("edit-availability").value = profile.availability || "";
+              setEditAvailability(profile.availability || "");
       document.getElementById("edit-phone").value = profile.phone || "";
       document.getElementById("edit-bio").value = profile.bio || "";
       document.getElementById("edit-salary-min").value = profile.salary_min || "";
       document.getElementById("edit-salary-max").value = profile.salary_max || "";
+
+      editSelectedSkills = (profile.skills || "")
+        .split(",")
+        .map(skill => skill.trim())
+        .filter(Boolean);
+
+      renderEditServiceChips();
+      renderEditSelectedSkills();
+
     } catch (err) {
       console.error(err);
       alert("Error loading edit page.");
@@ -865,12 +962,15 @@ if (resultsDiv) {
   const serviceBox = document.getElementById("search-service-box");
   const locationEl = document.getElementById("search-location");
 
+  let selectedServices = [];
+
   const renderServiceChipsSearch = () => {
     if (!serviceBox || !serviceOptionEl) return;
 
     const selectedCareType = careTypeEl?.value || "";
     const options = serviceOptionsMap[selectedCareType] || [];
 
+    selectedServices = [];
     serviceOptionEl.value = "";
     serviceBox.innerHTML = "";
 
@@ -887,12 +987,17 @@ if (resultsDiv) {
 
     serviceBox.querySelectorAll(".service-chip").forEach((chip) => {
       chip.addEventListener("click", () => {
-        serviceBox.querySelectorAll(".service-chip")
-          .forEach(c => c.classList.remove("selected"));
+        const service = chip.dataset.service;
 
-        chip.classList.add("selected");
-        serviceOptionEl.value = chip.dataset.service;
+        if (selectedServices.includes(service)) {
+          selectedServices = selectedServices.filter(s => s !== service);
+          chip.classList.remove("selected");
+        } else {
+          selectedServices.push(service);
+          chip.classList.add("selected");
+        }
 
+        serviceOptionEl.value = selectedServices.join(", ");
         loadProfiles();
       });
     });
@@ -946,7 +1051,6 @@ if (resultsDiv) {
     }
 
     const careType = careTypeEl?.value.trim().toLowerCase() || "";
-    const serviceOption = serviceOptionEl?.value.trim().toLowerCase() || "";
 
     let filtered = data || [];
 
@@ -956,10 +1060,14 @@ if (resultsDiv) {
       );
     }
 
-    if (serviceOption) {
-      filtered = filtered.filter((p) =>
-        (p.skills || "").toLowerCase().includes(serviceOption)
-      );
+    if (selectedServices.length > 0) {
+      filtered = filtered.filter((p) => {
+        const profileSkills = (p.skills || "").toLowerCase();
+
+        return selectedServices.some(service =>
+          profileSkills.includes(service.toLowerCase())
+        );
+      });
     }
 
     renderProfiles(filtered);

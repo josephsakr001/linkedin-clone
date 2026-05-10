@@ -44,7 +44,7 @@ input, textarea, button, select { font: inherit; }
   position: relative;
   top: 0;
   z-index: 999;
-  background: rgba(248, 245, 240, 0.92);
+  background: #2D5C4F;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(30, 46, 42, 0.08);
   padding: 14px 22px;
@@ -56,7 +56,7 @@ input, textarea, button, select { font: inherit; }
 .brand,
 .logo {
   font-weight: 800;
-  color: var(--primary);
+  color: white;
   font-size: 18px;
 }
 
@@ -174,7 +174,7 @@ button:hover, .btn:hover {
 }
 
 .btn-secondary:hover {
-  background: #a85e38;
+  background:  #C4724A;
 }
 
 /* HERO */
@@ -243,12 +243,41 @@ button:hover, .btn:hover {
   gap: 12px;
   flex-wrap: wrap;
 }
+/* BUILDER */
 
-/* FEATURED */
-.featured, .story, .testimonials, .pricing-page, .page {
-  padding: 70px 20px;
+.user-card.builder,
+.result-card.builder,
+.profile-badge.builder {
+  background: #dff4ee;
+  border-color: #3f8f7a;
 }
 
+.profile-badge.builder {
+  color: #1f5f52;
+  background: #bfe7dc;
+}
+
+
+
+
+/* FEATURED */
+/* FEATURED */
+.featured {
+  padding: 70px 20px;
+  background-color: #2d5c4f;
+}
+
+.pricing-page {
+  padding: 70px 20px;
+  background-color: #EAF6F2;
+}
+
+.story,
+.testimonials,
+.page {
+  padding: 70px 20px;
+  background-color: #EAF6F2;
+}
 .featured-inner, .page-inner, .testimonials-inner, .footer-inner {
   max-width: 1100px;
   margin: 0 auto;
@@ -257,7 +286,8 @@ button:hover, .btn:hover {
 .featured-inner h2, .team-section h2 {
   font-size: 24px;
   margin-bottom: 18px;
-  color: #c4724a;
+  color: white;
+
 }
 
 .featured-grid, .results-grid {
@@ -329,7 +359,7 @@ button:hover, .btn:hover {
   background: #eef8f4;
 }
 
-.user-card.premium, .result-card.premium {
+.user-card.builder, .result-card.builder {
   background: linear-gradient(135deg, #fff8dc, #f5e6a3);
   box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
 }
@@ -487,6 +517,7 @@ button:hover, .btn:hover {
   color: var(--text);
   box-shadow: 0 10px 30px rgba(30, 46, 42, 0.08);
   border: 1px solid rgba(61, 122, 104, 0.10);
+  background: #F8F5F0;
 }
 
 .team-header {
@@ -862,12 +893,12 @@ button:hover, .btn:hover {
   color: #374151;
 }
 
-.profile-badge.professional {
+.profile-badge.builder{
   background: var(--primary);
   color: #fff;
 }
 
-.profile-badge.premium {
+.profile-badge.builder{
   background: linear-gradient(45deg, gold, orange);
   color: #000;
 }
@@ -1061,7 +1092,7 @@ button:hover, .btn:hover {
 
 /* FOOTER */
 .footer {
-  background: #2d5c4f;
+  background: #2D5C4F;
   color: #eaf6f2;
   padding: 60px 20px 20px;
   margin-top: 80px;
@@ -1154,7 +1185,7 @@ body {
 /* ===== SERVICES SECTION ===== */
 .services-section {
   padding: 80px 20px;
-  background: #f8f5f0;
+  background: #EAF6F2;
 }
 
 .services-container {
@@ -1519,6 +1550,7 @@ body {
     overflow-y: auto;
     width: 100%;
     -webkit-overflow-scrolling: touch;
+
   }
 
   .navbar {

@@ -23,33 +23,42 @@
 
     <form id="edit-profile-form">
       <input type="text" id="edit-name" placeholder="Full Name" required />
-      <input type="text" id="edit-headline" placeholder="Headline" />
-      <input type="text" id="edit-skills" placeholder="Skills (comma separated)" />
+
+      <select id="edit-headline">
+        <option value="">Select Care Type</option>
+        <option value="Child Care">Child Care</option>
+        <option value="Elder Care">Elder Care</option>
+        <option value="Home Nursing Care">Home Nursing Care</option>
+        <option value="Pregnancy & Maternity Care">Pregnancy & Maternity Care</option>
+        <option value="Therapy & Rehab">Therapy & Rehab</option>
+        <option value="Nutrition & Diet">Nutrition & Diet</option>
+        <option value="Disability & Special Needs Care">Disability & Special Needs Care</option>
+        <option value="Mental Health & Emotional Support Care">Mental Health & Emotional Support Care</option>
+      </select>
+
+      <div id="edit-service-options-box" class="service-options-box"></div>
+
+      <input type="text" id="edit-skills" placeholder="Selected skills" readonly />
+
+      <div id="edit-selected-skills" class="selected-skills"></div>
+
       <input type="text" id="edit-location" placeholder="Location" />
 
       <input type="text" id="edit-languages" placeholder="Languages spoken" />
 
-     <select id="edit-availability">
-  <option value="">Select Availability</option>
+      <div id="edit-availability-options-box" class="service-options-box">
+  <button type="button" class="availability-chip service-chip" data-availability="Morning (AM)">Morning (AM)</button>
+  <button type="button" class="availability-chip service-chip" data-availability="Afternoon (PM)">Afternoon (PM)</button>
+  <button type="button" class="availability-chip service-chip" data-availability="Full Day">Full Day</button>
+  <button type="button" class="availability-chip service-chip" data-availability="Full Time">Full Time</button>
+  <button type="button" class="availability-chip service-chip" data-availability="Part Time">Part Time</button>
+  <button type="button" class="availability-chip service-chip" data-availability="Flexible">Flexible</button>
+  <button type="button" class="availability-chip service-chip" data-availability="Night Shift">Night Shift</button>
+  <button type="button" class="availability-chip service-chip" data-availability="Weekend Only">Weekend Only</button>
+  <button type="button" class="availability-chip service-chip" data-availability="On Call">On Call</button>
+</div>
 
-  <optgroup label="Daily Availability">
-    <option value="Morning (AM)">Morning (AM)</option>
-    <option value="Afternoon (PM)">Afternoon (PM)</option>
-    <option value="Full Day">Full Day</option>
-  </optgroup>
-
-  <optgroup label="Work Type">
-    <option value="Full Time">Full Time</option>
-    <option value="Part Time">Part Time</option>
-    <option value="Flexible">Flexible</option>
-  </optgroup>
-
-  <optgroup label="Special">
-    <option value="Night Shift">Night Shift</option>
-    <option value="Weekend Only">Weekend Only</option>
-    <option value="On Call">On Call</option>
-  </optgroup>
-</select>
+<input type="text" id="edit-availability" placeholder="Selected availability" readonly />
 
       <input type="text" id="edit-phone" placeholder="Phone" />
       <textarea id="edit-bio" rows="5" placeholder="Bio"></textarea>
