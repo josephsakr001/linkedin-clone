@@ -1,6 +1,7 @@
 console.log("APP JS RUNNING");
 
 const supabaseClient = window.supabaseClient;
+const DEFAULT_AVATAR = "./assets/default-avatar.png";
 
 /* =========================
    SERVICE OPTIONS
@@ -532,7 +533,7 @@ if (profileContainer) {
       return;
     }
 
-    const avatar = data.avatar_url || "https://via.placeholder.com/150?text=User";
+   const avatar = data.avatar_url || DEFAULT_AVATAR;
 
     const salary =
       data.salary_min || data.salary_max
@@ -885,8 +886,7 @@ if (featuredUsersContainer) {
     }
 
     featuredUsersContainer.innerHTML = (data || []).map((user) => {
-      const avatar = user.avatar_url || "https://via.placeholder.com/80?text=User";
-
+    const avatar = user.avatar_url || DEFAULT_AVATAR;
       return `
         <a class="user-card ${user.plan || "starter"}" href="./profile.html?id=${user.id}">
           <div class="user-top">
@@ -1010,7 +1010,7 @@ if (resultsDiv) {
     }
 
     resultsDiv.innerHTML = profiles.map((p) => {
-      const avatar = p.avatar_url || "https://via.placeholder.com/80?text=User";
+      const avatar = p.avatar_url || DEFAULT_AVATAR;
 
       return `
         <a class="result-card ${p.plan || "starter"}" href="./profile.html?id=${p.id}">
