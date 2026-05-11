@@ -27,8 +27,9 @@ html { scroll-behavior: smooth; }
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  background-color: #EAF6F2;
+ background:  #f8f5f0;
 }
+
 
 img {
   max-width: 100%;
