@@ -466,10 +466,11 @@ button:hover, .btn:hover {
 /* TEAM SECTION - PROFESSIONAL LIGHT STYLE */
 .team-section {
   padding: 80px 20px;
-  background: #EAF6F2;
+  background: #f8f5f0;
 }
 
 .team-container {
+  background: #f8f5f0;
   max-width: 1200px;
   margin: auto;
 }
