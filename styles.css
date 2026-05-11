@@ -348,7 +348,7 @@ button:hover, .btn:hover {
 
 /* STORY */
 .story {
-  background: #eaf6f2;
+  background: #F8f5f0;
 }
 
 .story-inner {
@@ -466,7 +466,7 @@ button:hover, .btn:hover {
 /* TEAM SECTION - PROFESSIONAL LIGHT STYLE */
 .team-section {
   padding: 80px 20px;
-  background: linear-gradient(180deg, #eaf6f2 0%, #f6fbf8 100%);
+  background: #EAF6F2;
 }
 
 .team-container {
