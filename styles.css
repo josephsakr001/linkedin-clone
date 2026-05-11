@@ -266,12 +266,16 @@ button:hover, .btn:hover {
   max-width: 1100px;
   margin: 0 auto;
 }
-
-.featured-inner h2, .team-section h2 {
+.featured-inner h2 {
   font-size: 24px;
   margin-bottom: 18px;
   color: white;
+}
 
+.team-section h2 {
+  font-size: 24px;
+  margin-bottom: 18px;
+  color: #1E2E2A;
 }
 
 .featured-grid, .results-grid {
