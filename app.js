@@ -3,6 +3,52 @@ console.log("APP JS RUNNING");
 const supabaseClient = window.supabaseClient;
 const DEFAULT_AVATAR = "./assets/default-avatar.png";
 
+let selectedBilling = "monthly";
+
+const PLAN_PRICES = {
+  monthly: {
+    starter: 0,
+    builder: 21.5,
+    premium: 25
+  },
+  annually: {
+    starter: 130,
+    builder: 194,
+    premium: 240
+  }
+};
+
+function getPlanPrice(plan, billing) {
+  const normalizedPlan = normalizePlan(plan);
+  return PLAN_PRICES[billing]?.[normalizedPlan] || 0;
+}
+
+async function createWhishPayment(plan) {
+  const externalId = Date.now();
+
+  const response = await fetch("http://localhost:3000/create-whish-payment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      plan: plan,
+      externalId: externalId
+    })
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    console.error(result);
+    throw new Error(result.message || "Whish payment failed");
+  }
+
+  return {
+    collectUrl: result.collectUrl,
+    externalId: externalId
+  };
+}
 /* =========================
    SERVICE OPTIONS
 ========================= */
@@ -400,8 +446,9 @@ if (billingButtons.length > 0) {
 
       btn.classList.add("active");
 
-      const billingType = btn.dataset.billing;
-      const data = pricingData[billingType];
+const billingType = btn.dataset.billing;
+selectedBilling = billingType;
+const data = pricingData[billingType];
 
       setText("starter-price", data.starter.price);
       setText("starter-duration", data.starter.duration);
@@ -417,7 +464,6 @@ if (billingButtons.length > 0) {
     });
   });
 }
-
 /* =========================
    PACKAGES
 ========================= */
@@ -433,6 +479,45 @@ if (pricingButtons.length > 0) {
       try {
         const pendingData = JSON.parse(localStorage.getItem("pendingRegistration"));
 
+        const { data: authData } = await supabaseClient.auth.getUser();
+        const loggedUser = authData?.user || null;
+
+        /* REACTIVATION FLOW */
+        if (!pendingData && loggedUser) {
+          const { data: existingProfile, error: profileError } = await supabaseClient
+            .from("profiles")
+            .select("id")
+            .eq("user_id", loggedUser.id)
+            .maybeSingle();
+
+          if (profileError || !existingProfile) {
+            alert("No profile found. Please register first.");
+            window.location.href = "./register.html";
+            return;
+          }
+
+          const { error: updateError } = await supabaseClient
+            .from("profiles")
+            .update({
+              plan: plan,
+              plan_rank: getPlanRank(plan),
+              expires_at: getExpiryDate(plan),
+              is_active: true
+            })
+            .eq("user_id", loggedUser.id);
+
+          if (updateError) {
+            console.error(updateError);
+            alert("Reactivation failed: " + updateError.message);
+            return;
+          }
+
+          alert("Profile reactivated successfully ✅");
+          window.location.href = `./profile.html?id=${existingProfile.id}`;
+          return;
+        }
+
+        /* NEW REGISTER FLOW */
         if (!pendingData) {
           alert("Please register first.");
           window.location.href = "./register.html";
@@ -510,150 +595,6 @@ if (pricingButtons.length > 0) {
       }
     });
   });
-}
-
-/* =========================
-   PROFILE
-========================= */
-
-const profileContainer = document.getElementById("profile-container");
-
-if (profileContainer) {
-  const params = new URLSearchParams(window.location.search);
-  const profileId = params.get("id");
-
-  const loadProfile = async () => {
-    try {
-      if (!profileId) {
-        profileContainer.innerHTML = "<p>No profile id.</p>";
-        return;
-      }
-
-      profileContainer.innerHTML = "<p>Loading profile...</p>";
-
-      const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq("id", profileId)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Profile load error:", error);
-        profileContainer.innerHTML = "<p>Error loading profile.</p>";
-        return;
-      }
-
-      if (!data) {
-        profileContainer.innerHTML = "<p>Profile not found.</p>";
-        return;
-      }
-
-      const { data: authData } = await supabaseClient.auth.getUser();
-      const currentUserId = authData?.user?.id || null;
-      const isOwner = currentUserId && currentUserId === data.user_id;
-      const expired = isProfileExpired(data);
-      const planClass = normalizePlan(data.plan);
-
-      if (expired && !isOwner) {
-        profileContainer.innerHTML = "<p>This profile is not available.</p>";
-        return;
-      }
-
-      if (expired && isOwner) {
-        profileContainer.innerHTML = `
-          <div class="simple-profile ${planClass}">
-            <div class="simple-profile-topbar"></div>
-            <div class="simple-profile-section">
-              <h3>Your plan has expired</h3>
-              <p>Your profile is hidden from the public.</p>
-              <a href="./packages.html" class="edit-profile-btn">Reactivate</a>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      const avatar = data.avatar_url || DEFAULT_AVATAR;
-
-      const salary =
-        data.salary_min || data.salary_max
-          ? `${data.salary_min || "?"} - ${data.salary_max || "?"} USD`
-          : "Not specified";
-
-      const skillsList = (data.skills || "")
-        .split(",")
-        .map(skill => skill.trim())
-        .filter(Boolean)
-        .map(skill => `<span class="skill-tag">${skill}</span>`)
-        .join("");
-
-      const badge = data.plan
-        ? `<span class="profile-badge ${planClass}">${getPlanLabel(data.plan)}</span>`
-        : "";
-
-      profileContainer.innerHTML = `
-        <div class="simple-profile ${planClass}">
-          <div class="simple-profile-topbar"></div>
-
-          <div class="simple-profile-header">
-            <img src="${avatar}" class="simple-profile-avatar" alt="Avatar" />
-
-            <div class="simple-profile-info">
-              <div class="profile-name-row">
-                <h1>${data.name || "No name"}</h1>
-                ${badge}
-              </div>
-              <p class="simple-headline">${data.headline || "No headline yet."}</p>
-              ${isOwner ? `<a href="./edit-profile.html" class="edit-profile-btn">Edit Profile</a>` : ""}
-            </div>
-          </div>
-
-          <div class="simple-profile-section">
-            <h3>Details</h3>
-            <div class="profile-details-grid">
-              <div class="detail-box">
-                <span class="detail-label">Location</span>
-                <strong>${data.location || "Not provided"}</strong>
-              </div>
-              <div class="detail-box">
-                <span class="detail-label">Languages</span>
-                <strong>${data.languages || "Not provided"}</strong>
-              </div>
-              <div class="detail-box">
-                <span class="detail-label">Availability</span>
-                <strong>${data.availability || "Not provided"}</strong>
-              </div>
-              <div class="detail-box">
-                <span class="detail-label">Phone</span>
-                <strong>${data.phone || "Not provided"}</strong>
-              </div>
-              <div class="detail-box">
-                <span class="detail-label">Salary</span>
-                <strong>${salary}</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="simple-profile-section">
-            <h3>About</h3>
-            <p>${data.bio || "No bio yet."}</p>
-          </div>
-
-          <div class="simple-profile-section">
-            <h3>Skills</h3>
-            <div class="skills-wrap">
-              ${skillsList || '<span class="no-skills">No skills added yet.</span>'}
-            </div>
-          </div>
-        </div>
-      `;
-    } catch (err) {
-      console.error("Profile fatal error:", err);
-      profileContainer.innerHTML = "<p>Error loading profile.</p>";
-    }
-  };
-
-  loadProfile();
 }
 
 /* =========================
@@ -889,6 +830,151 @@ if (editProfileForm) {
     }
   });
 }
+
+/* =========================
+   PROFILE
+========================= */
+
+const profileContainer = document.getElementById("profile-container");
+
+if (profileContainer) {
+  const params = new URLSearchParams(window.location.search);
+  const profileId = params.get("id");
+
+  const loadProfile = async () => {
+    try {
+      if (!profileId) {
+        profileContainer.innerHTML = "<p>No profile id.</p>";
+        return;
+      }
+
+      profileContainer.innerHTML = "<p>Loading caregiver profile...</p>";
+
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", profileId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Profile load error:", error);
+        profileContainer.innerHTML = "<p>Error loading profile.</p>";
+        return;
+      }
+
+      if (!data) {
+        profileContainer.innerHTML = "<p>Profile not found.</p>";
+        return;
+      }
+
+      const { data: authData } = await supabaseClient.auth.getUser();
+      const currentUserId = authData?.user?.id || null;
+      const isOwner = currentUserId && currentUserId === data.user_id;
+      const expired = isProfileExpired(data);
+      const planClass = normalizePlan(data.plan);
+
+      if (expired && !isOwner) {
+        profileContainer.innerHTML = "<p>This profile is not available.</p>";
+        return;
+      }
+
+      if (expired && isOwner) {
+        profileContainer.innerHTML = `
+          <div class="simple-profile ${planClass}">
+            <div class="simple-profile-topbar"></div>
+            <div class="simple-profile-section">
+              <h3>Your plan has expired</h3>
+              <p>Your profile is hidden from the public.</p>
+              <a href="./packages.html" class="edit-profile-btn">Reactivate</a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const avatar = data.avatar_url || DEFAULT_AVATAR;
+
+      const salary =
+        data.salary_min || data.salary_max
+          ? `${data.salary_min || "?"} - ${data.salary_max || "?"} USD`
+          : "Not specified";
+
+      const skillsList = (data.skills || "")
+        .split(",")
+        .map(skill => skill.trim())
+        .filter(Boolean)
+        .map(skill => `<span class="skill-tag">${skill}</span>`)
+        .join("");
+
+      const badge = data.plan
+        ? `<span class="profile-badge ${planClass}">${getPlanLabel(data.plan)}</span>`
+        : "";
+
+      profileContainer.innerHTML = `
+        <div class="simple-profile ${planClass}">
+          <div class="simple-profile-topbar"></div>
+
+          <div class="simple-profile-header">
+            <img src="${avatar}" class="simple-profile-avatar" alt="Avatar" />
+
+            <div class="simple-profile-info">
+              <div class="profile-name-row">
+                <h1>${data.name || "No name"}</h1>
+                ${badge}
+              </div>
+              <p class="simple-headline">${data.headline || "No headline yet."}</p>
+              ${isOwner ? `<a href="./edit-profile.html" class="edit-profile-btn">Edit Profile</a>` : ""}
+            </div>
+          </div>
+
+          <div class="simple-profile-section">
+            <h3>Details</h3>
+            <div class="profile-details-grid">
+              <div class="detail-box">
+                <span class="detail-label">Location</span>
+                <strong>${data.location || "Not provided"}</strong>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">Languages</span>
+                <strong>${data.languages || "Not provided"}</strong>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">Availability</span>
+                <strong>${data.availability || "Not provided"}</strong>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">Phone</span>
+                <strong>${data.phone || "Not provided"}</strong>
+              </div>
+              <div class="detail-box">
+                <span class="detail-label">Salary</span>
+                <strong>${salary}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="simple-profile-section">
+            <h3>About</h3>
+            <p>${data.bio || "No bio yet."}</p>
+          </div>
+
+          <div class="simple-profile-section">
+            <h3>Skills</h3>
+            <div class="skills-wrap">
+              ${skillsList || '<span class="no-skills">No skills added yet.</span>'}
+            </div>
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      console.error("Profile fatal error:", err);
+      profileContainer.innerHTML = "<p>Error loading profile.</p>";
+    }
+  };
+
+  loadProfile();
+}
+
 
 /* =========================
    MY PROFILE LINK
