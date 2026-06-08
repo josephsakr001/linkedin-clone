@@ -11,6 +11,7 @@ const WHISH_BASE_URL = process.env.WHISH_BASE_URL;
 const WHISH_CHANNEL = process.env.WHISH_CHANNEL;
 const WHISH_SECRET = process.env.WHISH_SECRET;
 const WEBSITE_URL = process.env.WEBSITE_URL;
+
 console.log("ENV TEST:");
 console.log("WHISH_BASE_URL =", WHISH_BASE_URL);
 console.log("WEBSITE_URL =", WEBSITE_URL);
@@ -28,28 +29,42 @@ function getPlanPrice(plan, billingType) {
   return 0;
 }
 
+function getPlanName(plan) {
+  if (plan === "starter") return "Explorer";
+  if (plan === "builder") return "Builder";
+  if (plan === "premium") return "Expert";
+  return "Explorer";
+}
+
 app.post("/create-whish-payment", async (req, res) => {
   try {
-    const { plan, billing, amount, email, name } = req.body;
+    const { plan, billingType, externalId } = req.body;
 
-    if (!plan || !billing || !amount) {
+    if (!plan || !billingType || !externalId) {
       return res.status(400).json({
         success: false,
-        message: "Missing plan, billing, or amount"
+        message: "Missing plan, billingType, or externalId"
       });
     }
 
-    const externalId = Date.now();
+    const amount = getPlanPrice(plan, billingType);
+
+    if (amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Free plan does not need Whish payment"
+      });
+    }
 
     const payload = {
       amount: Number(amount),
       currency: "USD",
-      invoice: `CareExpert ${getPlanName(plan)} ${billing} - ${name || email || "User"}`,
-      externalId: externalId,
-      successCallbackUrl: `${WEBSITE_URL}/payment-success.html?externalId=${externalId}&plan=${plan}&billing=${billing}`,
-      failureCallbackUrl: `${WEBSITE_URL}/payment-failed.html?externalId=${externalId}&plan=${plan}&billing=${billing}`,
-      successRedirectUrl: `${WEBSITE_URL}/payment-success.html?externalId=${externalId}&plan=${plan}&billing=${billing}`,
-      failureRedirectUrl: `${WEBSITE_URL}/payment-failed.html?externalId=${externalId}&plan=${plan}&billing=${billing}`
+      invoice: `CareExpert ${getPlanName(plan)} ${billingType}`,
+      externalId: Number(externalId),
+      successCallbackUrl: `${WEBSITE_URL}/payment-success.html?externalId=${externalId}&plan=${plan}&billing=${billingType}`,
+      failureCallbackUrl: `${WEBSITE_URL}/payment-failed.html?externalId=${externalId}&plan=${plan}&billing=${billingType}`,
+      successRedirectUrl: `${WEBSITE_URL}/payment-success.html?externalId=${externalId}&plan=${plan}&billing=${billingType}`,
+      failureRedirectUrl: `${WEBSITE_URL}/payment-failed.html?externalId=${externalId}&plan=${plan}&billing=${billingType}`
     };
 
     const response = await fetch(`${WHISH_BASE_URL}/payment/whish`, {

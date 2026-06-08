@@ -464,6 +464,7 @@ const data = pricingData[billingType];
     });
   });
 }
+
 /* =========================
    PACKAGES
 ========================= */
@@ -475,6 +476,8 @@ if (pricingButtons.length > 0) {
     btn.addEventListener("click", async () => {
       const rawPlan = btn.dataset.plan;
       const plan = normalizePlan(rawPlan);
+      const billing = selectedBilling || "monthly";
+      const amount = getPlanPrice(plan, billing);
 
       try {
         const pendingData = JSON.parse(localStorage.getItem("pendingRegistration"));
@@ -482,7 +485,37 @@ if (pricingButtons.length > 0) {
         const { data: authData } = await supabaseClient.auth.getUser();
         const loggedUser = authData?.user || null;
 
-        /* REACTIVATION FLOW */
+        if (amount > 0) {
+          localStorage.setItem("pendingPlan", plan);
+          localStorage.setItem("pendingBilling", billing);
+
+          const externalId = Date.now();
+          localStorage.setItem("pendingExternalId", String(externalId));
+
+          const response = await fetch("http://localhost:3000/create-whish-payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              plan: plan,
+              billingType: billing,
+              externalId: externalId
+            })
+          });
+
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            console.error(result);
+            alert("Whish payment error. Check server console.");
+            return;
+          }
+
+          window.location.href = result.collectUrl;
+          return;
+        }
+
         if (!pendingData && loggedUser) {
           const { data: existingProfile, error: profileError } = await supabaseClient
             .from("profiles")
@@ -517,7 +550,6 @@ if (pricingButtons.length > 0) {
           return;
         }
 
-        /* NEW REGISTER FLOW */
         if (!pendingData) {
           alert("Please register first.");
           window.location.href = "./register.html";
@@ -586,7 +618,6 @@ if (pricingButtons.length > 0) {
         localStorage.removeItem("pendingAvatar");
 
         alert("Profile created successfully ✅");
-
         window.location.href = "./search.html";
 
       } catch (err) {
@@ -594,240 +625,6 @@ if (pricingButtons.length > 0) {
         alert("Error: " + err.message);
       }
     });
-  });
-}
-
-/* =========================
-   EDIT PROFILE
-========================= */
-
-const editProfileForm = document.getElementById("edit-profile-form");
-
-if (editProfileForm) {
-  let currentProfileId = null;
-  let editSelectedSkills = [];
-
-  const editCareTypeEl = document.getElementById("edit-headline");
-  const editServiceOptionsBox = document.getElementById("edit-service-options-box");
-  const editSkillsInput = document.getElementById("edit-skills");
-  const editSelectedSkillsContainer = document.getElementById("edit-selected-skills");
-
-  const editAvailabilityBox = document.getElementById("edit-availability-options-box");
-  const editAvailabilityInput = document.getElementById("edit-availability");
-
-  const setEditAvailability = (value) => {
-    if (editAvailabilityInput) editAvailabilityInput.value = value || "";
-
-    if (editAvailabilityBox) {
-      editAvailabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
-        chip.classList.toggle("selected", chip.dataset.availability === value);
-      });
-    }
-  };
-
-  if (editAvailabilityBox && editAvailabilityInput) {
-    editAvailabilityBox.querySelectorAll(".availability-chip").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        const value = chip.dataset.availability;
-
-        editAvailabilityBox.querySelectorAll(".availability-chip")
-          .forEach(c => c.classList.remove("selected"));
-
-        chip.classList.add("selected");
-        editAvailabilityInput.value = value;
-      });
-    });
-  }
-
-  const renderEditSelectedSkills = () => {
-    if (!editSkillsInput) return;
-
-    editSkillsInput.value = editSelectedSkills.join(", ");
-
-    if (!editSelectedSkillsContainer) return;
-
-    editSelectedSkillsContainer.innerHTML = editSelectedSkills
-      .map(skill => `
-        <span class="skill-pill">
-          ${skill}
-          <button type="button" class="remove-skill-btn" data-skill="${skill}">&times;</button>
-        </span>
-      `)
-      .join("");
-
-    editSelectedSkillsContainer.querySelectorAll(".remove-skill-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        editSelectedSkills = editSelectedSkills.filter(item => item !== btn.dataset.skill);
-
-        const chip = editServiceOptionsBox?.querySelector(`[data-skill="${btn.dataset.skill}"]`);
-        if (chip) chip.classList.remove("selected");
-
-        renderEditSelectedSkills();
-      });
-    });
-  };
-
-  const renderEditServiceChips = () => {
-    if (!editCareTypeEl || !editServiceOptionsBox || !editSkillsInput) return;
-
-    const selectedCareType = editCareTypeEl.value || "";
-    const careSkills = serviceOptionsMap[selectedCareType] || [];
-    const allSkills = [...careSkills, ...defaultServiceOptions];
-
-    editServiceOptionsBox.innerHTML = allSkills
-      .map(skill => `
-        <button type="button" class="service-chip ${editSelectedSkills.includes(skill) ? "selected" : ""}" data-skill="${skill}">
-          ${skill}
-        </button>
-      `)
-      .join("");
-
-    editServiceOptionsBox.querySelectorAll(".service-chip").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        const skill = chip.dataset.skill;
-
-        if (editSelectedSkills.includes(skill)) {
-          editSelectedSkills = editSelectedSkills.filter(item => item !== skill);
-          chip.classList.remove("selected");
-        } else {
-          editSelectedSkills.push(skill);
-          chip.classList.add("selected");
-        }
-
-        renderEditSelectedSkills();
-      });
-    });
-  };
-
-  editCareTypeEl?.addEventListener("change", () => {
-    editSelectedSkills = [];
-    renderEditSelectedSkills();
-    renderEditServiceChips();
-  });
-
-  const loadEditProfile = async () => {
-    try {
-      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
-
-      if (authError || !authData?.user) {
-        alert("You must be logged in to edit your profile.");
-        window.location.href = "./login.html";
-        return;
-      }
-
-      const userId = authData.user.id;
-
-      const { data: profile, error: profileError } = await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (profileError || !profile) {
-        console.error(profileError);
-        alert("Could not load profile.");
-        return;
-      }
-
-      currentProfileId = profile.id;
-
-      document.getElementById("edit-name").value = profile.name || "";
-      document.getElementById("edit-headline").value = profile.headline || "";
-      document.getElementById("edit-location").value = profile.location || "";
-      document.getElementById("edit-languages").value = profile.languages || "";
-      setEditAvailability(profile.availability || "");
-      document.getElementById("edit-phone").value = profile.phone || "";
-      document.getElementById("edit-bio").value = profile.bio || "";
-      document.getElementById("edit-salary-min").value = profile.salary_min || "";
-      document.getElementById("edit-salary-max").value = profile.salary_max || "";
-
-      editSelectedSkills = (profile.skills || "")
-        .split(",")
-        .map(skill => skill.trim())
-        .filter(Boolean);
-
-      renderEditServiceChips();
-      renderEditSelectedSkills();
-
-    } catch (err) {
-      console.error(err);
-      alert("Error loading edit page.");
-    }
-  };
-
-  loadEditProfile();
-
-  editProfileForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    try {
-      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
-
-      if (authError || !authData?.user) {
-        alert("You must be logged in.");
-        window.location.href = "./login.html";
-        return;
-      }
-
-      const userId = authData.user.id;
-      let avatarUrl = null;
-
-      const avatarFile = document.getElementById("edit-avatar")?.files?.[0];
-
-      if (avatarFile) {
-        const fileName = `avatar-${userId}-${Date.now()}.png`;
-
-        const { error: uploadError } = await supabaseClient.storage
-          .from("avatars")
-          .upload(fileName, avatarFile);
-
-        if (!uploadError) {
-          avatarUrl = supabaseClient
-            .storage
-            .from("avatars")
-            .getPublicUrl(fileName).data.publicUrl;
-        }
-      }
-
-      const updatedProfile = {
-        name: document.getElementById("edit-name").value.trim(),
-        headline: document.getElementById("edit-headline").value.trim(),
-        skills: document.getElementById("edit-skills").value.trim(),
-        location: document.getElementById("edit-location").value.trim(),
-        languages: document.getElementById("edit-languages").value.trim(),
-        availability: document.getElementById("edit-availability").value.trim(),
-        phone: document.getElementById("edit-phone").value.trim(),
-        bio: document.getElementById("edit-bio").value.trim(),
-        salary_min: parseInt(document.getElementById("edit-salary-min").value || 0, 10) || null,
-        salary_max: parseInt(document.getElementById("edit-salary-max").value || 0, 10) || null
-      };
-
-      if (avatarUrl) {
-        updatedProfile.avatar_url = avatarUrl;
-      }
-
-      const { error: updateError } = await supabaseClient
-        .from("profiles")
-        .update(updatedProfile)
-        .eq("user_id", userId);
-
-      if (updateError) {
-        console.error(updateError);
-        alert("Update failed: " + updateError.message);
-        return;
-      }
-
-      alert("Profile updated successfully ✅");
-
-      if (currentProfileId) {
-        window.location.href = `./profile.html?id=${currentProfileId}`;
-      } else {
-        window.location.href = "./search.html";
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error: " + err.message);
-    }
   });
 }
 
