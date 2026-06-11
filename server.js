@@ -57,7 +57,7 @@ app.post("/create-whish-payment", async (req, res) => {
     }
 
     const payload = {
-      amount: Number(amount),
+      amount: String(amount),
       currency: "USD",
       invoice: `CareExpert ${getPlanName(plan)} ${billingType}`,
       externalId: Number(externalId),
@@ -67,19 +67,35 @@ app.post("/create-whish-payment", async (req, res) => {
       failureRedirectUrl: `${WEBSITE_URL}/payment-failed.html?externalId=${externalId}&plan=${plan}&billing=${billingType}`
     };
 
+    console.log("WHISH PAYLOAD:", payload);
+
     const response = await fetch(`${WHISH_BASE_URL}/payment/whish`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "channel": WHISH_CHANNEL,
-        "secret": WHISH_SECRET,
-        "websiteUrl": WEBSITE_URL,
+        channel: WHISH_CHANNEL,
+        secret: WHISH_SECRET,
+        websiteUrl: WEBSITE_URL,
         "User-Agent": "Whish/1.0 (https://whish.money; support@whish.money)"
       },
       body: JSON.stringify(payload)
     });
 
-    const result = await response.json();
+    const rawText = await response.text();
+    console.log("WHISH HTTP STATUS:", response.status);
+    console.log("WHISH RAW RESPONSE:", rawText);
+
+    let result;
+
+    try {
+      result = JSON.parse(rawText);
+    } catch (parseError) {
+      return res.status(500).json({
+        success: false,
+        message: "Whish returned non-JSON response",
+        raw: rawText
+      });
+    }
 
     if (!result.status) {
       return res.status(400).json({
@@ -126,15 +142,28 @@ app.post("/check-whish-status", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "channel": WHISH_CHANNEL,
-        "secret": WHISH_SECRET,
-        "websiteUrl": WEBSITE_URL,
+        channel: WHISH_CHANNEL,
+        secret: WHISH_SECRET,
+        websiteUrl: WEBSITE_URL,
         "User-Agent": "Whish/1.0 (https://whish.money; support@whish.money)"
       },
       body: JSON.stringify(payload)
     });
 
-    const result = await response.json();
+    const rawText = await response.text();
+    console.log("WHISH STATUS RAW RESPONSE:", rawText);
+
+    let result;
+
+    try {
+      result = JSON.parse(rawText);
+    } catch (parseError) {
+      return res.status(500).json({
+        success: false,
+        message: "Whish status returned non-JSON response",
+        raw: rawText
+      });
+    }
 
     return res.json({
       success: result.status,
