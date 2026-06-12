@@ -1,0 +1,5 @@
+◇ injected env (5) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+ENV TEST:
+WHISH_BASE_URL = https://api.sandbox.whish.money/itel-service/api
+WEBSITE_URL = https://careexpert.co
+Whish server running on port 3000

@@ -5,6 +5,20 @@ const DEFAULT_AVATAR = "./assets/default-avatar.png";
 
 let selectedBilling = "monthly";
 
+function getApiBaseUrl() {
+  if (typeof window.API_BASE_URL === "string" && window.API_BASE_URL.trim()) {
+    return window.API_BASE_URL.replace(/\/$/, "");
+  }
+
+  if (window.location.origin && window.location.origin !== "null") {
+    return window.location.origin.replace(/\/$/, "");
+  }
+
+  return "http://localhost:3000";
+}
+
+const API_BASE_URL = getApiBaseUrl();
+
 const PLAN_PRICES = {
   monthly: {
     starter: 0,
@@ -23,25 +37,32 @@ function getPlanPrice(plan, billing) {
   return PLAN_PRICES[billing]?.[normalizedPlan] || 0;
 }
 
-async function createWhishPayment(plan) {
-  const externalId = Date.now();
-
-  const response = await fetch("http://localhost:3000/create-whish-payment", {
+async function createWhishPayment(plan, billingType = selectedBilling, externalId = Date.now()) {
+  const response = await fetch(`${API_BASE_URL}/create-whish-payment`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
       plan: plan,
+      billingType: billingType,
       externalId: externalId
     })
   });
 
-  const result = await response.json();
+  const raw = await response.text();
 
-  if (!response.ok || !result.success) {
-    console.error(result);
-    throw new Error(result.message || "Whish payment failed");
+  let result = null;
+  try {
+    result = raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    console.error("Failed to parse JSON from /create-whish-payment:", raw);
+    throw new Error(`Invalid JSON response from server (status ${response.status})` + (raw ? `: ${raw}` : ""));
+  }
+
+  if (!response.ok || !result || !result.success) {
+    console.error("Whish payment error response:", result || raw);
+    throw new Error((result && result.message) || `Whish payment failed (status ${response.status})`);
   }
 
   return {
@@ -474,6 +495,11 @@ const pricingButtons = document.querySelectorAll(".pricing-btn");
 if (pricingButtons.length > 0) {
   pricingButtons.forEach((btn) => {
     btn.addEventListener("click", async () => {
+      // disable button and show processing state for feedback
+      const originalDisabled = btn.disabled;
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Processing...";
       const rawPlan = btn.dataset.plan;
       const plan = normalizePlan(rawPlan);
       const billing = selectedBilling || "monthly";
@@ -492,28 +518,14 @@ if (pricingButtons.length > 0) {
           const externalId = Date.now();
           localStorage.setItem("pendingExternalId", String(externalId));
 
-          const response = await fetch("http://localhost:3000/create-whish-payment", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              plan: plan,
-              billingType: billing,
-              externalId: externalId
-            })
-          });
-
-          const result = await response.json();
-
-          if (!response.ok || !result.success) {
-            console.error(result);
-            alert("Whish payment error. Check server console.");
+          // attempt to create Whish payment and redirect
+          const { collectUrl } = await createWhishPayment(plan, billing, externalId);
+          if (collectUrl) {
+            window.location.href = collectUrl;
             return;
           }
 
-          window.location.href = result.collectUrl;
-          return;
+          throw new Error("No collectUrl returned from payment gateway");
         }
 
         if (!pendingData && loggedUser) {
@@ -622,7 +634,15 @@ if (pricingButtons.length > 0) {
 
       } catch (err) {
         console.error(err);
-        alert("Error: " + err.message);
+        alert("Payment error: " + (err.message || JSON.stringify(err)));
+      } finally {
+        // restore button state if we're still on the page
+        try {
+          btn.disabled = originalDisabled;
+          btn.textContent = originalText;
+        } catch (e) {
+          // ignore
+        }
       }
     });
   });

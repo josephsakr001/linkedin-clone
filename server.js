@@ -1,20 +1,26 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname)));
 
 const WHISH_BASE_URL = process.env.WHISH_BASE_URL;
 const WHISH_CHANNEL = process.env.WHISH_CHANNEL;
 const WHISH_SECRET = process.env.WHISH_SECRET;
-const WEBSITE_URL = process.env.WEBSITE_URL;
+const WEBSITE_URL = process.env.WEBSITE_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 console.log("ENV TEST:");
 console.log("WHISH_BASE_URL =", WHISH_BASE_URL);
 console.log("WEBSITE_URL =", WEBSITE_URL);
+
+app.get("/create-whish-payment", (req, res) => {
+  res.redirect("/packages.html");
+});
 
 function getPlanPrice(plan, billingType) {
   if (plan === "starter" && billingType === "monthly") return 0;
