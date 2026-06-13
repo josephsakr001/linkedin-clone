@@ -511,6 +511,13 @@ if (pricingButtons.length > 0) {
         const { data: authData } = await supabaseClient.auth.getUser();
         const loggedUser = authData?.user || null;
 
+        // Check if user is trying to pay for a plan but is NOT registered
+        if (amount > 0 && !loggedUser && !pendingData) {
+          alert("Please register first.");
+          window.location.href = "./register.html";
+          return;
+        }
+
         if (amount > 0) {
           localStorage.setItem("pendingPlan", plan);
           localStorage.setItem("pendingBilling", billing);
