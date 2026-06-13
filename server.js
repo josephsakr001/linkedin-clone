@@ -26,7 +26,7 @@ function getPlanPrice(plan, billingType) {
   if (plan === "starter" && billingType === "monthly") return 0;
   if (plan === "starter" && billingType === "annually") return 130;
 
-  if (plan === "builder" && billingType === "monthly") return 21.5;
+  if (plan === "builder" && billingType === "monthly") return 1;
   if (plan === "builder" && billingType === "annually") return 194;
 
   if (plan === "premium" && billingType === "monthly") return 25;

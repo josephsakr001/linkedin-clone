@@ -22,7 +22,7 @@ const API_BASE_URL = getApiBaseUrl();
 const PLAN_PRICES = {
   monthly: {
     starter: 0,
-    builder: 21.5,
+    builder: 1,
     premium: 25
   },
   annually: {
